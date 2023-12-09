@@ -1,0 +1,22 @@
+
+.white-background-style {
+  background-color: white;
+}
+
+.main-window-layout {
+  height: auto;
+}
+
+.main-window-header {
+  height: 52px;
+  background-color: rgb(200, 250, 230);
+}
+
+.main-window-buttons-panel-style {
+  height: 35px;
+  background-color: antiquewhite;
+}
+
+.search-empl-style {
+  margin: 10px 0 10px 0;
+}
