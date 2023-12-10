@@ -22,7 +22,7 @@ const router = createBrowserRouter([
                 element: (<WelcomeComponent/>),
             },
             {
-                path: "/employees/:id",
+                path: "/employees/:employeeId",
                 element: (<EmployeeComponent/>),
             }
         ]
@@ -36,6 +36,6 @@ const App = () => {
     return (
         <RouterProvider router={router}/>
     );
-}
+};
 
 export default App;

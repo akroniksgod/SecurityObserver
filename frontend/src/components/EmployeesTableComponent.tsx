@@ -1,19 +1,23 @@
 import React from "react";
 import {useNavigate} from "react-router-dom";
 import {Table, Typography} from "antd";
-import {EmployeeProps} from "../types/Employees";
+import {EmployeeProps} from "../types/EmployeesTypes";
 import type { ColumnsType } from 'antd/es/table';
+import EmployeeStore from "../stores/EmployeeStore";
+import { inject, observer } from "mobx-react";
+import { sorter } from "../Utils";
 
 /**
  * Свойства компонента со списком сотрудников.
  */
 interface EmployeesTableComponentProps {
+    employeeStore?: EmployeeStore,
 }
 
 /**
  * Компонент, отображающий список сотрудников с базовой информацией.
  */
-export const EmployeesTableComponent: React.FC<EmployeesTableComponentProps> = (props) => {
+const EmployeesTableComponent: React.FC<EmployeesTableComponentProps> = inject("employeeStore")(observer((props) => {
     /**
      * Переключатель пути в адресной строке браузера.
      */
@@ -35,7 +39,7 @@ export const EmployeesTableComponent: React.FC<EmployeesTableComponentProps> = (
             title: "ФИО",
             dataIndex: "fullName",
             key: "employees_table_fullName",
-            // sorter: (a: DistributionDbProps, b: DistributionDbProps) => sorter(a, b, "genderName")
+            sorter: (a: EmployeeProps, b: EmployeeProps) => sorter(a, b, "fullName"),
             render: (_: any, row: any) => {
                 return (
                     <Typography.Link
@@ -50,55 +54,36 @@ export const EmployeesTableComponent: React.FC<EmployeesTableComponentProps> = (
             title: "Дата рождения",
             dataIndex: "birthDate",
             key: "employees_table_birthDate",
-            width: 315,
-            // sorter: (a: DistributionDbProps, b: DistributionDbProps) => sorter(a, b, "townName")
+            width: 200,
+            sorter: (a: EmployeeProps, b: EmployeeProps) => sorter(a, b, "birthDate")
         },
         {
             title: "Адрес",
             dataIndex: "address",
             key: "employees_table_address",
-            width: 315,
-            // sorter: (a: DistributionDbProps, b: DistributionDbProps) => sorter(a, b, "townName")
+            width: 200,
+            sorter: (a: EmployeeProps, b: EmployeeProps) => sorter(a, b, "address")
         },
         {
             title: "Должность",
             dataIndex: "position",
             key: "employees_table_position",
-            width: 290,
-            // sorter: (a: DistributionDbProps, b: DistributionDbProps) => sorter(a, b, "ageGroupName")
+            width: 200,
+            sorter: (a: EmployeeProps, b: EmployeeProps) => sorter(a, b, "position")
         },
         {
             title: "Телефон",
             dataIndex: "phoneNumber",
             key: "employees_table_phoneNumber",
             width: 150,
-            // sorter: (a: DistributionDbProps, b: DistributionDbProps) => sorter(a, b, "brochureCount")
+            sorter: (a: EmployeeProps, b: EmployeeProps) => sorter(a, b, "phoneNumber")
         },
     ];
 
     /**
      * Коллекция сотрудников фирмы.
      */
-    const employees: EmployeeProps[] = [
-        {
-            key: "employee_1",
-            id: 1,
-            fullName: "alksdl dsakjdl saldk",
-            birthDate: "01.01.1990",
-            address: "Perm",
-            position: "dev",
-            phoneNumber: "+7 (123) 456-7890",
-        },
-        {
-            key: "employee_2",
-            id: 2,
-            fullName: "Олег",
-            birthDate: "01.01.1990",
-            address: "Moscow",
-            position: "dev",
-            phoneNumber: "+7 (123) 456-7890",
-        },
-    ];
+    const employees: EmployeeProps[] = props.employeeStore?.employees ?? [];
 
     return (
         <Table
@@ -110,4 +95,6 @@ export const EmployeesTableComponent: React.FC<EmployeesTableComponentProps> = (
             pagination={false}
         />
     );
-};
+}));
+
+export default EmployeesTableComponent;
