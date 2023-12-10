@@ -1,4 +1,4 @@
-import {Button, Form, Result, Typography} from "antd";
+import {Button, Form, Input, QRCode, Result, Typography} from "antd";
 import React, { useEffect } from "react";
 import EmployeeStore from "../stores/EmployeeStore";
 import { inject, observer } from "mobx-react";
@@ -14,6 +14,7 @@ const employeeMetadata = [
     {label: "Адрес", property: "address", key: "emplyee_address"},
     {label: "Должность", property: "position", key: "emplyee_position"},
     {label: "Телефон", property: "phoneNumber", key: "emplyee_phoneNumber"},
+    {label: "QR", property: "QR", key: "emplyee_QR"},
 ];
 
 /**
@@ -71,10 +72,18 @@ const EmployeeComponent: React.FC<EmployeeComponentProps> = inject("employeeStor
             {employee !== null ?
                 <Form>
                     {employeeMetadata.map(metadata => {
+                        if (metadata.property === "QR") {
+                            return (
+                                <Form.Item label={metadata.label} key={metadata.key}>
+                                    <QRCode value={`${parsableEmployee["fullName"]} ${parsableEmployee["id"]}`} />
+                                </Form.Item>
+                            );
+                        }
+
                         const val = parsableEmployee[metadata.property];
                         return (
                             <Form.Item label={metadata.label} key={metadata.key}>
-                                {val}
+                                <Input readOnly value={val}/>
                             </Form.Item>
                         );
                     })}
