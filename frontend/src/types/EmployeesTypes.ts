@@ -42,3 +42,13 @@ export interface EmployeeProps extends BaseEmployee {
 export type ParseObjectProp = {
    [key: string]: any
 };
+
+/**
+ * Свойства точек в графике.
+ * @param month Месяц.
+ * @param attendance Посещения.
+ */
+export interface ChartPointsProps {
+   month: string;
+   attendance: number;
+}

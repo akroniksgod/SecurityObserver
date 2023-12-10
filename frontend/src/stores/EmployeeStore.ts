@@ -1,5 +1,5 @@
 import { observable, action, makeAutoObservable } from "mobx";
-import { EmployeeProps } from "../types/EmployeesTypes";
+import {ChartPointsProps, EmployeeProps} from "../types/EmployeesTypes";
 import { random } from "../Utils";
 
 /**
@@ -22,11 +22,17 @@ class EmployeeStore {
     @observable public searchEmployeeValue: string;
 
     /**
+     * Точки для графика.
+     */
+    @observable public chartPoints: ChartPointsProps[];
+
+    /**
      * Конструктор.
      */
     constructor() {
         this.currentEmployee = null;
         this.employees = [];
+        this.chartPoints = [];
         this.searchEmployeeValue = "";
 
         makeAutoObservable(this);
@@ -121,6 +127,17 @@ class EmployeeStore {
                 address: address,
                 position: position,
                 phoneNumber: phoneNumber
+            });
+        }
+
+        const monthNames = ["Январь", "Февраль", "Март", "Апрель", "Май", "Июнь",
+            "Июль", "Август", "Сентябрь", "Октябрь", "Ноябрь", "Декабрь"
+        ];
+        const d = new Date();
+        for (let i = 0; i < 11; ++i) {
+            this.chartPoints.push({
+                month: monthNames[i],
+                attendance: random(0, 31)
             });
         }
     }
