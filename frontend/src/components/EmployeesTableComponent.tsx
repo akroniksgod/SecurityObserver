@@ -1,7 +1,7 @@
 import React from "react";
 import {useNavigate} from "react-router-dom";
 import {Table, Typography} from "antd";
-import {EmployeeProps} from "../types/EmployeesTypes";
+import {EmployeeProps, ParseObjectProp} from "../types/EmployeesTypes";
 import type { ColumnsType } from 'antd/es/table';
 import EmployeeStore from "../stores/EmployeeStore";
 import { inject, observer } from "mobx-react";
@@ -85,13 +85,32 @@ const EmployeesTableComponent: React.FC<EmployeesTableComponentProps> = inject("
      */
     const employees: EmployeeProps[] = props.employeeStore?.employees ?? [];
 
+    /**
+     * Искомое значение.
+     */
+    const searchValue = props.employeeStore?.searchEmployeeValue ?? "";
+
+    /**
+     * Возвращает фильрованные товары.
+     */
+    const getFilteredEmployees = () => {
+        return searchValue === "" ? employees
+            : employees.filter(row => {
+                const currentRow: ParseObjectProp = row;
+                return Object.keys(row).some(key => {
+                    const val = currentRow[key];
+                    return val.toString().toLowerCase().includes(searchValue);
+                });
+            });
+    };
+
     return (
         <Table
             size={"large"}
             scroll={{y: "calc(100vh - 140px)", x: "max-content"}}
             bordered
             columns={columns}
-            dataSource={employees}
+            dataSource={getFilteredEmployees()}
             pagination={false}
         />
     );

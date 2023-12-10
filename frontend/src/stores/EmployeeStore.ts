@@ -32,8 +32,17 @@ class EmployeeStore {
         makeAutoObservable(this);
         this.initEmployees = this.initEmployees.bind(this);
         this.updateCurrentEmployeeInfo = this.updateCurrentEmployeeInfo.bind(this);
+        this.updateSearchValue = this.updateSearchValue.bind(this);
 
         this.initEmployees();
+    }
+
+    /**
+     * Изменяет искомое значение в поиске сотрудников.
+     * @param searchValue Искомое значение.
+     */
+    @action public updateSearchValue(searchValue: string) {
+        this.searchEmployeeValue = searchValue;
     }
 
     /**
