@@ -1,8 +1,8 @@
 import Layout, {Content, Header } from "antd/es/layout/layout";
 import EmployeeMainComponent from "./EmployeeMainComponent";
 import { Button, Space } from "antd";
-import "../styles/EmployeeTabContent.css";
-import "../styles/WelcomeComponent.css";
+import "../../styles/EmployeeTabContent.css";
+import "../../styles/WelcomeComponent.css";
 
 /**
  * Содержимое вкладки с каталогами.

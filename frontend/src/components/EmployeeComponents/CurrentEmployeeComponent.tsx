@@ -1,11 +1,11 @@
 import {Button, Card, Col, Empty, Form, Input, QRCode, Result, Row, Spin, Typography} from "antd";
 import React, { useEffect } from "react";
-import EmployeeStore from "../stores/EmployeeStore";
+import EmployeeStore from "../../stores/EmployeeStore";
 import { inject, observer } from "mobx-react";
-import { ParseObjectProp } from "../types/EmployeesTypes";
+import { ParseObjectProp } from "../../types/EmployeesTypes";
 import {useNavigate, useParams } from "react-router-dom";
 import ChartComponent from "./ChartComponent";
-import "../styles/EmployeeComponent.css";
+import "../../styles/EmployeeComponent.css";
 
 /**
  * Метаданные для формы сотрудников.

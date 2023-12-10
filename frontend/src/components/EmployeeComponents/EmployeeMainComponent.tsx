@@ -2,12 +2,12 @@ import React from "react";
 import {Layout, Spin} from "antd";
 import {Content} from "antd/es/layout/layout";
 import SearchEmployeesComponent from "./SearchEmployeesComponent";
-import EmployeeStore from "../stores/EmployeeStore";
+import EmployeeStore from "../../stores/EmployeeStore";
 import { observer, inject } from "mobx-react";
 import Sider from "antd/es/layout/Sider";
 import EmployeeMenuComponent from "./EmployeeMenuComponent";
-import "../styles/EmployeeMainComponent.css";
-import "../styles/WelcomeComponent.css";
+import "../../styles/EmployeeMainComponent.css";
+import "../../styles/WelcomeComponent.css";
 import CurrentEmployeeComponent from "./CurrentEmployeeComponent";
 
 /**

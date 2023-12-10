@@ -1,5 +1,5 @@
 import { inject, observer } from "mobx-react";
-import EmployeeStore from "../stores/EmployeeStore";
+import EmployeeStore from "../../stores/EmployeeStore";
 import Plot from 'react-plotly.js';
 
 /**

@@ -1,8 +1,8 @@
 import {Empty, Menu, MenuProps, Spin } from "antd";
-import EmployeeStore from "../stores/EmployeeStore";
+import EmployeeStore from "../../stores/EmployeeStore";
 import { useEffect, useState } from "react";
 import { inject, observer } from "mobx-react";
-import "../styles/EmployeeMenuComponent.css";
+import "../../styles/EmployeeMenuComponent.css";
 
 /**
  * Свойства компонента меню сотрудников.
@@ -113,13 +113,15 @@ const EmployeeMenuComponent: React.FC<EmployeeMenuComponentProps> = inject("empl
         }
     };
 
+    /**
+     * Искомое значение в меню.
+     */
     const searchValue = props.employeeStore?.searchEmployeeValue ?? "";
 
+    /**
+     * Возвращает отфильтрованную коллекцю сотрудников.
+     */
     const getFilteredEmployees = () => {
-        console.log(employeeItems)
-        console.log((employeeItems as {key: string, label: string}[])
-            .filter((employeeItem) => employeeItem.label.toLowerCase().includes(searchValue)))
-        // return employeeItems;
         return searchValue === "" ? employeeItems
             : (employeeItems as {key: string, label: string}[])
                 .filter((employeeItem) => employeeItem.label.toLowerCase().includes(searchValue));

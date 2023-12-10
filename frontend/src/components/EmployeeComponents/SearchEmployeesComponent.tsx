@@ -1,8 +1,8 @@
 import React from "react";
 import Search from "antd/es/input/Search";
-import EmployeeStore from "../stores/EmployeeStore";
+import EmployeeStore from "../../stores/EmployeeStore";
 import { inject, observer } from "mobx-react";
-import "../styles/SearchEmployeesComponent.css";
+import "../../styles/SearchEmployeesComponent.css";
 
 /**
  * Свойтсва компонента с поиском сотдруников.

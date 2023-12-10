@@ -2,9 +2,9 @@ import React, {useEffect} from "react";
 import {Layout, Typography} from "antd";
 import {Header} from "antd/es/layout/layout";
 import EmployeeStore from "../stores/EmployeeStore";
+import EmployeeTabContent from "./EmployeeComponents/EmployeeTabContent";
 import { observer, inject } from "mobx-react";
 import "../styles/WelcomeComponent.css";
-import EmployeeTabContent from "./EmployeeTabContent";
 
 /**
  * Свойства встречающего компонента.
