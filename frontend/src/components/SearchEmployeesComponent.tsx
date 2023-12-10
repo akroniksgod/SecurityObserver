@@ -2,6 +2,7 @@ import React from "react";
 import Search from "antd/es/input/Search";
 import EmployeeStore from "../stores/EmployeeStore";
 import { inject, observer } from "mobx-react";
+import "../styles/SearchEmployeesComponent.css";
 
 /**
  * Свойтсва компонента с поиском сотдруников.
@@ -19,7 +20,7 @@ const SearchEmployeesComponent: React.FC<SearchEmployeesComponentProps> = inject
      * @param searchValue Искомое значение.
      */
     const onSearch = (searchValue: string) => {
-        const normalised = searchValue.trim().toLowerCase();
+        const normalised = searchValue.toLowerCase();
         props.employeeStore?.updateSearchValue(normalised);
     };
 

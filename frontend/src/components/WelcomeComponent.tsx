@@ -1,10 +1,10 @@
 import React, {useEffect} from "react";
-import {Layout} from "antd";
+import {Layout, Typography} from "antd";
 import {Header} from "antd/es/layout/layout";
-import SearchEmployeesComponent from "./SearchEmployeesComponent";
-import EmployeesTableComponent from "./EmployeesTableComponent";
 import EmployeeStore from "../stores/EmployeeStore";
 import { observer, inject } from "mobx-react";
+import "../styles/WelcomeComponent.css";
+import EmployeeTabContent from "./EmployeeTabContent";
 
 /**
  * Свойства встречающего компонента.
@@ -30,13 +30,17 @@ const WelcomeComponent: React.FC<WelcomeComponentProps> = inject("employeeStore"
     return (
         <Layout className={"white-background-style"}>
             <Header className={"main-window-header"}>
-                <SearchEmployeesComponent/>
+                <Typography.Title className={"header-title"}>
+                    SecurityObserver
+                </Typography.Title>
             </Header>
             <Layout className={"main-window-layout"}>
-                <EmployeesTableComponent/>
+                <EmployeeTabContent/>
             </Layout>
         </Layout>
     );
 }));
+
+
 
 export default WelcomeComponent;

@@ -69,7 +69,7 @@ const ChartComponent: React.FC<ChartComponentProps> = inject("employeeStore")(ob
                     type: "scatter"
                 },
             ]}
-            style={{width: "calc(100vw - 700px)", height: "calc(100vh - 600px)", padding: "10px 10px 10px 10px"}}
+            style={{height: "calc(100vh - 300px)", width: "calc(100vw - 800px)"}}
             layout={layout}
             config={{responsive: true}}
         />

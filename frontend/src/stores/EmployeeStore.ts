@@ -3,6 +3,11 @@ import {ChartPointsProps, EmployeeProps} from "../types/EmployeesTypes";
 import { random } from "../Utils";
 
 /**
+ * Путь к данным каталога в session storage.
+ */
+const EMPLOYEE_SS_PATH: Readonly<string> = "ss_employee";
+
+/**
  * Хранилище сотрудников.
  */
 class EmployeeStore {
@@ -27,6 +32,16 @@ class EmployeeStore {
     @observable public chartPoints: ChartPointsProps[];
 
     /**
+     * Загружается ли меню сотрудников.
+     */
+    @observable public isEmployeeMenuLoading: boolean;
+
+    /**
+     * Загружается ли информация о сотруднике.
+     */
+    @observable public isEmployeeLoading: boolean;
+
+    /**
      * Конструктор.
      */
     constructor() {
@@ -34,13 +49,98 @@ class EmployeeStore {
         this.employees = [];
         this.chartPoints = [];
         this.searchEmployeeValue = "";
+        this.isEmployeeMenuLoading = false;
+        this.isEmployeeLoading = false;
 
         makeAutoObservable(this);
         this.initEmployees = this.initEmployees.bind(this);
         this.updateCurrentEmployeeInfo = this.updateCurrentEmployeeInfo.bind(this);
         this.updateSearchValue = this.updateSearchValue.bind(this);
 
+        this.loadEmployees = this.loadEmployees.bind(this);
+        this.getSavedEmployee = this.getSavedEmployee.bind(this);
+        this.reset = this.reset.bind(this);
+        this.getSavedEmployeeMenu = this.getSavedEmployeeMenu.bind(this);
+        this.onEmployeeClick = this.onEmployeeClick.bind(this);
+        this.saveEmployeeToSessionStorage = this.saveEmployeeToSessionStorage.bind(this);
+    }
+
+    /**
+     * Срабатывает после выбора сотрудника в меню.
+     * @param employeeId Идентификатор сотрудника.
+     */
+    @action public async onEmployeeClick(employeeId: number) {
+        if (isNaN(employeeId) || employeeId === -1) return;
+
+        // this.isBrochureSelected = true;
+        this.isEmployeeLoading = true;
+
+        let foundEmployee = null;
+
+        // if (SHOULD_USE_ONLY_DB_DATA === "false") {
+        //     foundBrochure = this.brochures.find(brochure => brochure.id === brochureId) ?? null;
+        // } else {
+        //     await this.getBrochureById(brochureId).then((response: {data: any}) => {
+        //         foundBrochure = response.data;
+        //     });
+        // }
+
+        foundEmployee = this.employees.find(employee => employee.id === employeeId) ?? null;
+
+        this.currentEmployee = foundEmployee;
+        this.saveEmployeeToSessionStorage(foundEmployee);
+
+        setTimeout(() => {
+            this.isEmployeeLoading = false;
+        }, 250);
+    }
+
+    /**
+     * Сохраняет сотрудника в session storage.
+     * @param employee Сотрудник.
+     */
+    @action private saveEmployeeToSessionStorage(employee: EmployeeProps | null): void {
+        console.log("saveEmployeeToSessionStorage")
+        sessionStorage.setItem(EMPLOYEE_SS_PATH, JSON.stringify(employee));
+    }
+
+    /**
+     * Возвращает меню с открытыми каталогами из session storage.
+     */
+    @action public getSavedEmployeeMenu(): string[] {
+        const employee = this.getSavedEmployee();
+        return employee ? [`employee_${employee.id}`] : [];
+    }
+
+    /**
+     * Очищает данные о каталоге.
+     */
+    @action public reset(): void {
+        this.currentEmployee = null;
+        sessionStorage.removeItem(EMPLOYEE_SS_PATH);
+    }
+
+    /**
+     * Возвращает сохранённый каталог в сессии браузера.
+     */
+    @action public getSavedEmployee(): EmployeeProps | null {
+        const json = sessionStorage.getItem(EMPLOYEE_SS_PATH);
+        if (json === null || json === "undefined") return null;
+        return JSON.parse(json);
+    }
+
+    /**
+     * Загружает каталоги.
+     */
+    @action public loadEmployees() {
+        this.isEmployeeMenuLoading = true;
+
+        // SHOULD_USE_ONLY_DB_DATA === "false" ? this.initBrochures() : this.updateBrochureList();
         this.initEmployees();
+
+        setTimeout(() => {
+            this.isEmployeeMenuLoading = false;
+        }, 300);
     }
 
     /**
