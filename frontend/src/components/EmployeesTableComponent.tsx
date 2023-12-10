@@ -91,7 +91,7 @@ const EmployeesTableComponent: React.FC<EmployeesTableComponentProps> = inject("
     const searchValue = props.employeeStore?.searchEmployeeValue ?? "";
 
     /**
-     * Возвращает фильрованные товары.
+     * Возвращает отфильтрованный список сотрудников.
      */
     const getFilteredEmployees = () => {
         return searchValue === "" ? employees
@@ -111,6 +111,13 @@ const EmployeesTableComponent: React.FC<EmployeesTableComponentProps> = inject("
             bordered
             columns={columns}
             dataSource={getFilteredEmployees()}
+            onRow={(row, rowIndex) => {
+                return {
+                    onClick: (event) => {
+                        handleClick(`/employees/${row.id}`);
+                    },
+                };
+            }}
             pagination={false}
         />
     );
