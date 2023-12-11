@@ -29,7 +29,7 @@ class EmployeeService extends BaseService {
      * @param params Параметры каталога.
      */
     public static async createEmployee(params: object) {
-        const methodRoute = `/createBrochure`;
+        const methodRoute = `/createEmployee`;
         return await BaseService.sendPostHttpRequest(BACKEND_CONTROLLER_ROUTE, methodRoute, params);
     }
 
