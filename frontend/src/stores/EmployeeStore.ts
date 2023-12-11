@@ -1,11 +1,13 @@
 import { observable, action, makeAutoObservable } from "mobx";
 import {ChartPointsProps, EmployeeProps} from "../types/EmployeesTypes";
-import { random } from "../Utils";
+import {cerr, cout, random } from "../Utils";
+import { SHOULD_USE_ONLY_DB_DATA } from "../constants/EnvironmentVaribles";
+import EmployeeService from "../services/EmployeeService";
 
 /**
  * Путь к данным каталога в session storage.
  */
-const EMPLOYEE_SS_PATH: Readonly<string> = "ss_employee";
+const EMPLOYEE_SS_PATH = "ss_employee";
 
 /**
  * Хранилище сотрудников.
@@ -63,6 +65,7 @@ class EmployeeStore {
         this.getSavedEmployeeMenu = this.getSavedEmployeeMenu.bind(this);
         this.onEmployeeClick = this.onEmployeeClick.bind(this);
         this.saveEmployeeToSessionStorage = this.saveEmployeeToSessionStorage.bind(this);
+        this.updateEmployeeList = this.updateEmployeeList.bind(this);
     }
 
     /**
@@ -77,15 +80,15 @@ class EmployeeStore {
 
         let foundEmployee = null;
 
-        // if (SHOULD_USE_ONLY_DB_DATA === "false") {
-        //     foundBrochure = this.brochures.find(brochure => brochure.id === brochureId) ?? null;
-        // } else {
-        //     await this.getBrochureById(brochureId).then((response: {data: any}) => {
-        //         foundBrochure = response.data;
-        //     });
-        // }
-
-        foundEmployee = this.employees.find(employee => employee.id === employeeId) ?? null;
+        if (SHOULD_USE_ONLY_DB_DATA === "false") {
+            foundEmployee = this.employees.find(employee => employee.id === employeeId) ?? null;
+        } else {
+            await EmployeeService.getEmployeeById(employeeId).then((response: {data: any}) => {
+                cout(response.data);
+                foundEmployee = response.data;
+            });
+        }
+        // foundEmployee = this.employees.find(employee => employee.id === employeeId) ?? null;
 
         this.currentEmployee = foundEmployee;
         this.saveEmployeeToSessionStorage(foundEmployee);
@@ -100,7 +103,6 @@ class EmployeeStore {
      * @param employee Сотрудник.
      */
     @action private saveEmployeeToSessionStorage(employee: EmployeeProps | null): void {
-        console.log("saveEmployeeToSessionStorage")
         sessionStorage.setItem(EMPLOYEE_SS_PATH, JSON.stringify(employee));
     }
 
@@ -135,8 +137,7 @@ class EmployeeStore {
     @action public loadEmployees() {
         this.isEmployeeMenuLoading = true;
 
-        // SHOULD_USE_ONLY_DB_DATA === "false" ? this.initBrochures() : this.updateBrochureList();
-        this.initEmployees();
+        SHOULD_USE_ONLY_DB_DATA === "false" ? this.initEmployees() : this.updateEmployeeList();
 
         setTimeout(() => {
             this.isEmployeeMenuLoading = false;
@@ -160,6 +161,23 @@ class EmployeeStore {
         if (collectionEmployee) {
             this.currentEmployee = collectionEmployee;
         }
+    }
+
+    /**
+     * Обновляет список сотрудников.
+     * @private
+     */
+    @action private async updateEmployeeList() {
+        await EmployeeService.getAllEmployees().then(
+            (response) => {
+                const data = response.data;
+                cout(data);
+                if (!(data instanceof Array)) return;
+
+                this.employees = data;
+            },
+            (error) => cerr(error)
+        );
     }
 
     /**

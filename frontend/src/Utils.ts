@@ -1,5 +1,6 @@
 import dayjs from "dayjs";
 import { ParseObjectProp } from "./types/EmployeesTypes";
+import { IS_DEBUG } from "./constants/EnvironmentVaribles";
 
 /**
  * Возвращает случайное число в промежутке от min до max.
@@ -32,4 +33,20 @@ export const sorter = (a: any, b: any, key: string) => {
     if (typeof first === "number") return first - second;
 
     return 0;
+};
+
+/**
+ * Лог в стандартный поток.
+ * @param message Текст лога.
+ */
+export const cerr = (message: string) => {
+    IS_DEBUG && console.error(message);
+};
+
+/**
+ * Лог в поток ошибок.
+ * @param message Текст лога.
+ */
+export const cout = (message: string) => {
+    IS_DEBUG && console.log(message);
 };

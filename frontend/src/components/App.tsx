@@ -15,15 +15,19 @@ const router = createBrowserRouter([
             {
                 path: '/',
                 element: (<WelcomeComponent/>),
+                children: [
+                    {
+                        path: "/employees",
+                        element: (<WelcomeComponent/>),
+                        children: [
+                            {
+                                path: "/employees/:employeeId",
+                                element: (<WelcomeComponent/>),
+                            }
+                        ]
+                    },
+                ]
             },
-            {
-                path: "/employees",
-                element: (<WelcomeComponent/>),
-            },
-            {
-                path: "/employees/:employeeId",
-                element: (<WelcomeComponent/>),
-            }
         ]
     },
 ]);

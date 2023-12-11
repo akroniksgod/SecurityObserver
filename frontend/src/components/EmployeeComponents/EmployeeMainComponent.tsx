@@ -11,15 +11,14 @@ import "../../styles/WelcomeComponent.css";
 import CurrentEmployeeComponent from "./CurrentEmployeeComponent";
 
 /**
- * Свойства встречающего компонента.
+ * Свойства компонента для отображения других компонентов, связанных с сотрудником.
  */
 interface WelcomeComponentProps {
     employeeStore?: EmployeeStore,
 }
 
 /**
- * Первый компонент, который видит пользователь.
- * Необходим для разметки некоторых компонентов.
+ * Основной компонент для отображения компонентов, связанных с сотрудником.
  */
 const EmployeeMainComponent: React.FC<WelcomeComponentProps> = inject("employeeStore")(observer((props) => {
     return (

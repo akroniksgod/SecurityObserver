@@ -5,7 +5,7 @@ import "../../styles/EmployeeTabContent.css";
 import "../../styles/WelcomeComponent.css";
 
 /**
- * Содержимое вкладки с каталогами.
+ * Содержимое вкладки с сотрудниками.
  */
 const EmployeeTabContent: React.FC = () => {
     return (
@@ -13,9 +13,9 @@ const EmployeeTabContent: React.FC = () => {
             <Header className={"main-window-buttons-panel-style"}>
                 <div className={"buttons-style"}>
                     <Space>
-                        <Button>Добавить</Button>
-                        <Button>Редактировать</Button>
-                        <Button>Удалить</Button>
+                        <Button disabled>Добавить</Button>
+                        <Button disabled>Редактировать</Button>
+                        <Button disabled>Удалить</Button>
                     </Space>
                 </div>
             </Header>
