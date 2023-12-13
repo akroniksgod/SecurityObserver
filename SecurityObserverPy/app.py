@@ -1,10 +1,16 @@
+from datetime import timedelta, datetime
+
 from flask import Flask, jsonify, request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 import logging
 import config
-from Models import DbQueriesLogger, EventCode, EntrancesLogger, Event, EventCode
 from Models.Employee import Employee
+from Models.DbQueriesLogger import DbQueriesLogger
+from Models.EventCode import EventCode
+from Models.Event import Event
+from Models.EntranceCode import EntranceCode
+from Models.EntrancesLogger import EntrancesLogger
 from sqlalchemy.orm import declarative_base
 import threading
 from gevent.pywsgi import WSGIServer
@@ -90,6 +96,54 @@ def update_employee(employee_id):
 
         session.commit()
         return jsonify({'message': f'Employee {employee_id} updated successfully!'}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+def calculate_work_days(employee_id, month, year):
+    try:
+        session = Session()
+        start_date = datetime(year, month, 1)
+        end_date = start_date.replace(month=start_date.month + 1) - timedelta(days=1)
+
+        events = session.query(Event). \
+            filter(Event.employee_id == employee_id, Event.date >= start_date, Event.date <= end_date). \
+            order_by(Event.date).all()
+
+        work_days = 0
+        last_event = None
+
+        for event in events:
+            if last_event is not None and (event.date - last_event.date) > timedelta(hours=6):
+                work_days += 1
+
+            last_event = event
+
+        return work_days
+
+    except Exception as e:
+        print(f"Error calculating work days: {str(e)}")
+        return None
+
+
+@app.route('/getEmployeeWorkedDays', methods=['POST'])
+def calculate_work_days_route():
+    try:
+        data = request.json
+        employee_id = data.get('employee_id')
+        month = data.get('month')
+        year = data.get('year')
+
+        if not all([employee_id, month, year]):
+            return jsonify({'error': 'Missing required parameters'}), 400
+
+        work_days = calculate_work_days(int(employee_id), int(month), int(year))
+
+        if work_days is not None:
+            return jsonify({'work_days': work_days}), 200
+        else:
+            return jsonify({'error': 'Error calculating work days'}), 500
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
