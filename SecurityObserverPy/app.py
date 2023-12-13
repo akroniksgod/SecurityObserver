@@ -1,5 +1,4 @@
 from datetime import timedelta, datetime
-
 from flask import Flask, jsonify, request
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
@@ -9,13 +8,14 @@ from Models.Employee import Employee
 from Models.DbQueriesLogger import DbQueriesLogger
 from Models.EventCode import EventCode
 from Models.Event import Event
+import query_data_calculation
 from Models.EntranceCode import EntranceCode
 from Models.EntrancesLogger import EntrancesLogger
 from sqlalchemy.orm import declarative_base
 import threading
 from gevent.pywsgi import WSGIServer
 
-# Импорт приложения Карелова Вадима
+# Импорт приложения Карелова Вадима Андреевича
 # import second_app
 
 logging.basicConfig()
@@ -101,32 +101,6 @@ def update_employee(employee_id):
         return jsonify({'error': str(e)}), 500
 
 
-def calculate_work_days(employee_id, month, year):
-    try:
-        session = Session()
-        start_date = datetime(year, month, 1)
-        end_date = start_date.replace(month=start_date.month + 1) - timedelta(days=1)
-
-        events = session.query(Event). \
-            filter(Event.employee_id == employee_id, Event.date >= start_date, Event.date <= end_date). \
-            order_by(Event.date).all()
-
-        work_days = 0
-        last_event = None
-
-        for event in events:
-            if last_event is not None and (event.date - last_event.date) > timedelta(hours=6):
-                work_days += 1
-
-            last_event = event
-
-        return work_days
-
-    except Exception as e:
-        print(f"Error calculating work days: {str(e)}")
-        return None
-
-
 @app.route('/getEmployeeWorkedDays', methods=['POST'])
 def calculate_work_days_route():
     try:
@@ -138,12 +112,38 @@ def calculate_work_days_route():
         if not all([employee_id, month, year]):
             return jsonify({'error': 'Missing required parameters'}), 400
 
-        work_days = calculate_work_days(int(employee_id), int(month), int(year))
+        work_days = query_data_calculation.calculate_work_days(int(employee_id), int(month), int(year))
 
         if work_days is not None:
             return jsonify({'work_days': work_days}), 200
         else:
             return jsonify({'error': 'Error calculating work days'}), 500
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/calculate_total_work_time', methods=['POST'])
+def calculate_total_work_time_route():
+    try:
+        data = request.json
+
+        employee_id = data.get('employee_id')
+        start_date_str = data.get('start_date')
+        end_date_str = data.get('end_date')
+
+        if not all([employee_id, start_date_str, end_date_str]):
+            return jsonify({'error': 'Missing required parameters'}), 400
+
+        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
+        end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+
+        total_work_time = query_data_calculation.calculate_total_work_time(int(employee_id), start_date, end_date)
+
+        if total_work_time is not None:
+            return jsonify({'total_work_time': str(total_work_time)}), 200
+        else:
+            return jsonify({'error': 'Error calculating total work time'}), 500
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -156,6 +156,6 @@ if __name__ == '__main__':
     # app_thread = threading.Thread(target=app.run, kwargs={'debug': True})
     # app_thread.start()
 
-    # Запуск приложения Карелова Вадима
+    # Запуск приложения Карелова Вадима Андреевича
     # second_app_thread = threading.Thread(target=second_app.second_app_function)
     # second_app_thread.start()
