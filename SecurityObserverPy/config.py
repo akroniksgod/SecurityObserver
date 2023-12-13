@@ -1,7 +1,1 @@
-DB_CONFIG = {
-    'dbname': 'SecurityObserverDB',
-    'user': 'postgres',
-    'password': '123321',
-    'host': 'localhost',
-    'port': '5432'
-}
+DB_CONFIG = "postgresql+psycopg2://postgres:123321@localhost:5432/SecurityObserverDB"
