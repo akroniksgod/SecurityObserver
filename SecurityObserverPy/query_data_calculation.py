@@ -52,3 +52,20 @@ def calculate_work_days(employee_id, month, year):
     except Exception as e:
         print(f"Error calculating work days: {str(e)}")
         return None
+
+
+def get_first_entry_time(employee_id, target_date):
+    try:
+        session = Session(bind=engine)
+        entry_event = session.query(Event).\
+            filter(Event.employee_id == employee_id, Event.event_code_id == 1, Event.date >= target_date).\
+            order_by(Event.date).first()
+
+        if entry_event:
+            return entry_event.date
+        else:
+            return None
+
+    except Exception as e:
+        print(f"Error getting first entry time: {str(e)}")
+        return None
