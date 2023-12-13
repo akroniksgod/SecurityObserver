@@ -127,7 +127,6 @@ def calculate_work_days_route():
 def calculate_total_work_time_route():
     try:
         data = request.json
-
         employee_id = data.get('employee_id')
         start_date_str = data.get('start_date')
         end_date_str = data.get('end_date')
@@ -144,6 +143,29 @@ def calculate_total_work_time_route():
             return jsonify({'total_work_time': str(total_work_time)}), 200
         else:
             return jsonify({'error': 'Error calculating total work time'}), 500
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+@app.route('/get_first_entry_time', methods=['POST'])
+def get_first_entry_time_route():
+    try:
+        data = request.json
+        employee_id = data.get('employee_id')
+        target_date_str = data.get('target_date')
+
+        if not all([employee_id, target_date_str]):
+            return jsonify({'error': 'Missing required parameters'}), 400
+
+        target_date = datetime.strptime(target_date_str, '%Y-%m-%d')
+
+        entry_time = query_data_calculation.get_first_entry_time(int(employee_id), target_date)
+
+        if entry_time is not None:
+            return jsonify({'entry_time': str(entry_time)}), 200
+        else:
+            return jsonify({'error': 'No entry time found for the specified date'}), 404
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
