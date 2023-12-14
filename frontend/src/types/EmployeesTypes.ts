@@ -1,3 +1,5 @@
+import EmployeeStore from "../stores/EmployeeStore";
+
 /**
  * Основные свойства сотрудника.
  * @param id Идентификатор.
@@ -51,4 +53,8 @@ export type ParseObjectProp = {
 export interface ChartPointsProps {
    month: string;
    attendance: number;
+}
+
+export interface BaseStoreInjector {
+   employeeStore?: EmployeeStore;
 }

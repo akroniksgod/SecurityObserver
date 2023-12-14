@@ -3,6 +3,7 @@ import EmployeeMainComponent from "./EmployeeMainComponent";
 import { Button, Space } from "antd";
 import "../../styles/EmployeeTabContent.css";
 import "../../styles/WelcomeComponent.css";
+import CreateEmployeeButtonComponent, {ButtonModes} from "./Operations/CreateEmployeeButtonComponent";
 
 /**
  * Содержимое вкладки с сотрудниками.
@@ -13,8 +14,8 @@ const EmployeeTabContent: React.FC = () => {
             <Header className={"main-window-buttons-panel-style"}>
                 <div className={"buttons-style"}>
                     <Space>
-                        <Button disabled>Добавить</Button>
-                        <Button disabled>Редактировать</Button>
+                        <CreateEmployeeButtonComponent mode={ButtonModes.CREATE}/>
+                        <CreateEmployeeButtonComponent mode={ButtonModes.EDIT}/>
                         <Button disabled>Удалить</Button>
                     </Space>
                 </div>

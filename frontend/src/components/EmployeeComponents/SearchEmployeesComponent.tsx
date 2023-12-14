@@ -1,14 +1,13 @@
 import React from "react";
 import Search from "antd/es/input/Search";
-import EmployeeStore from "../../stores/EmployeeStore";
 import { inject, observer } from "mobx-react";
 import "../../styles/SearchEmployeesComponent.css";
+import { BaseStoreInjector } from "../../types/EmployeesTypes";
 
 /**
  * Свойтсва компонента с поиском сотдруников.
  */
-interface SearchEmployeesComponentProps {
-    employeeStore?: EmployeeStore,
+interface SearchEmployeesComponentProps extends BaseStoreInjector {
 }
 
 /**

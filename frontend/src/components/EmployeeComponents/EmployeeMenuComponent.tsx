@@ -1,14 +1,13 @@
 import {Empty, Menu, MenuProps, Spin } from "antd";
-import EmployeeStore from "../../stores/EmployeeStore";
 import { useEffect, useState } from "react";
 import { inject, observer } from "mobx-react";
 import "../../styles/EmployeeMenuComponent.css";
+import { BaseStoreInjector } from "../../types/EmployeesTypes";
 
 /**
  * Свойства компонента меню сотрудников.
  */
-interface EmployeeMenuComponentProps {
-    employeeStore?: EmployeeStore;
+interface EmployeeMenuComponentProps extends BaseStoreInjector {
 }
 
 /**

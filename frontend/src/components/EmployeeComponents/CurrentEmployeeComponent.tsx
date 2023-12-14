@@ -1,9 +1,8 @@
-import {Button, Card, Col, Empty, Form, Input, QRCode, Result, Row, Spin, Typography} from "antd";
-import React, { useEffect } from "react";
-import EmployeeStore from "../../stores/EmployeeStore";
+import {Card, Empty, Form, Input, QRCode, Spin} from "antd";
+import React from "react";
 import { inject, observer } from "mobx-react";
-import { ParseObjectProp } from "../../types/EmployeesTypes";
-import {useNavigate, useParams } from "react-router-dom";
+import {BaseStoreInjector, ParseObjectProp } from "../../types/EmployeesTypes";
+import {useNavigate} from "react-router-dom";
 import ChartComponent from "./ChartComponent";
 import "../../styles/EmployeeComponent.css";
 
@@ -23,8 +22,7 @@ const employeeMetadata = [
 /**
  * Свойства компонента, отображающего информацию о сотруднике фирмы.
  */
-interface CurrentEmployeeComponentProps {
-    employeeStore?: EmployeeStore;
+interface CurrentEmployeeComponentProps extends BaseStoreInjector {
 }
 
 /**

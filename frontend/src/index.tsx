@@ -21,7 +21,10 @@ const stores = {
 root.render(
     <React.StrictMode>
         <Provider {...stores}>
-            <ConfigProvider locale={ru_RU} theme={{ token: { colorPrimary: '#00b96b' } }}>
+            <ConfigProvider
+                locale={ru_RU}
+                theme={{ token: { colorPrimary: '#00b96b' } }}
+            >
                 <App/>
             </ConfigProvider>
         </Provider>

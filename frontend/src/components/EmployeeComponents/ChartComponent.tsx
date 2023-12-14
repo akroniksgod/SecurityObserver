@@ -1,12 +1,11 @@
 import { inject, observer } from "mobx-react";
-import EmployeeStore from "../../stores/EmployeeStore";
 import Plot from 'react-plotly.js';
+import { BaseStoreInjector } from "../../types/EmployeesTypes";
 
 /**
  * Свойтсва компонента с графиком.
  */
-interface ChartComponentProps {
-    employeeStore?: EmployeeStore,
+interface ChartComponentProps extends BaseStoreInjector {
 }
 
 /**
