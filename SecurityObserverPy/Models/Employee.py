@@ -14,7 +14,7 @@ class Employee(Base):
     birthdate = Column(DateTime(), default=datetime.now)
     address = Column(String(250), nullable=False)
     position = Column(String(100), nullable=False)
-    phone_number = Column(String(13), nullable=False)
+    phoneNumber = Column(String(13), nullable=False)
 
     __table_args__ = (
         PrimaryKeyConstraint('id', name='employee_pk'),
