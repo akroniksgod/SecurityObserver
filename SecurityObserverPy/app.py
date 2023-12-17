@@ -157,7 +157,7 @@ def get_first_entry_time_route():
 
 if __name__ == '__main__':
     create()
-    # app.run()
+    app.run()
 
     # Запуск Flask приложения
     # app_thread = threading.Thread(target=app.run, kwargs={'debug': True})
