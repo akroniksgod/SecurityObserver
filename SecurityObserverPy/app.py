@@ -1,5 +1,6 @@
+import os
 from datetime import timedelta, datetime
-from flask import Flask, jsonify, request
+from flask import Flask, jsonify, request, send_from_directory
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 import logging
@@ -13,10 +14,19 @@ from Models import Employee, create_db
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
-app = Flask(__name__)
+app = Flask(__name__, static_folder='../frontend/build')
 db_config = config.DB_CONNECTION_STR
 engine = create_engine(config.DB_CONNECTION_STR, echo=True)
 Base = declarative_base()
+
+
+@app.route('/', defaults={'path': ''})
+@app.route('/<path:path>')
+def run_frontend(path):
+    if path != "" and os.path.exists(app.static_folder + '/' + path):
+        return send_from_directory(app.static_folder, path)
+    else:
+        return send_from_directory(app.static_folder, 'index.html')
 
 
 @app.route(f'{config.BASE_BACKEND_ROUTE}/', methods=['GET'])
