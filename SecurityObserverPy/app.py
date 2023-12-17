@@ -6,7 +6,7 @@ import logging
 import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
-from Models import Employee, create
+from Models import Employee, create_db
 
 # Импорт приложения Карелова Вадима Андреевича
 # import second_app
@@ -14,18 +14,32 @@ from Models import Employee, create
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 app = Flask(__name__)
-db_config = config.DB_CONFIG
-engine = create_engine(config.DB_CONFIG, echo=True)
+db_config = config.DB_CONNECTION_STR
+engine = create_engine(config.DB_CONNECTION_STR, echo=True)
 Base = declarative_base()
 
 
-@app.route('/getEmployees', methods=['GET'])
-def getEmployees():
+@app.route(f'{config.BASE_BACKEND_ROUTE}/', methods=['GET'])
+def welcome_route():
+    escape_char = "<br/>"
+    return (f'Routes:{escape_char}'
+            f'/getEmployees{escape_char}'
+            f'/createEmployee{escape_char}'
+            f'/deleteEmployee/employeeId{escape_char}'
+            f'/updateEmployee/employeeId{escape_char}'
+            f'/updateEmployee/employeeId{escape_char}'
+            f'/getEmployeeWorkedDays{escape_char}'
+            f'/getEmployeeWorkSpan{escape_char}'
+            '/getEmployeeEntranceTime')
+
+
+@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployees', methods=['GET'])
+def get_employees():
     session = Session(bind=engine)
     return session.query(Employee).all()
 
 
-@app.route('/createEmployee', methods=['POST'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/createEmployee', methods=['POST'])
 def create_employee():
     try:
         session = Session(bind=engine)
@@ -48,7 +62,7 @@ def create_employee():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/deleteEmployee/<int:employee_id>', methods=['DELETE'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/deleteEmployee/<int:employee_id>', methods=['DELETE'])
 def delete_employee(employee_id):
     try:
         session = Session(bind=engine)
@@ -66,7 +80,7 @@ def delete_employee(employee_id):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/updateEmployee/<int:employee_id>', methods=['PUT'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/updateEmployee/<int:employee_id>', methods=['PUT'])
 def update_employee(employee_id):
     try:
         session = Session(bind=engine)
@@ -85,7 +99,7 @@ def update_employee(employee_id):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/getEmployeeWorkedDays', methods=['POST'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeWorkedDays', methods=['POST'])
 def calculate_work_days_route():
     try:
         data = request.json
@@ -107,7 +121,7 @@ def calculate_work_days_route():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/getEmployeeWorkSpan', methods=['POST'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeWorkSpan', methods=['POST'])
 def calculate_total_work_time_route():
     try:
         data = request.json
@@ -132,7 +146,7 @@ def calculate_total_work_time_route():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/getEmployeeEntranceTime', methods=['POST'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeEntranceTime', methods=['POST'])
 def get_first_entry_time_route():
     try:
         data = request.json
@@ -156,7 +170,7 @@ def get_first_entry_time_route():
 
 
 if __name__ == '__main__':
-    create()
+    create_db()
     app.run()
 
     # Запуск Flask приложения

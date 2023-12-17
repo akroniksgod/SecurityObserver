@@ -3,8 +3,9 @@ from sqlalchemy import Table, Index, Integer, String, Column, Text, \
     UniqueConstraint, ForeignKeyConstraint, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
+import config
 
-engine = create_engine("postgresql+psycopg2://postgres:123321@localhost:5432/SecurityObserverDB")
+engine = create_engine(config.DB_CONNECTION_STR)
 
 Base = declarative_base()
 
@@ -89,6 +90,6 @@ class DbQueriesLogger(Base):
         {},
     )
 
-def create():
-    Base.metadata.create_all(engine)
 
+def create_db():
+    Base.metadata.create_all(engine)
