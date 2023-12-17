@@ -37,7 +37,7 @@ def delete_db():
 
 
 @app.route('/getEmployees', methods=['GET'])
-def get_employees():
+def getEmployees():
     session = Session(bind=engine)
     return session.query(Employee).all()
 
@@ -48,13 +48,14 @@ def create_employee():
         session = Session(bind=engine)
         data = request.json
         new_employee = Employee(
+            id=data.get('id'),
             surname=data.get('surname'),
             name=data.get('name'),
             patronymic=data.get('patronymic'),
             birthdate=data.get('birthdate'),
             address=data.get('address'),
             position=data.get('position'),
-            phone_number=data.get('phone_number')
+            phoneNumber=data.get('phoneNumber')
         )
         session.add(new_employee)
         session.commit()
@@ -64,7 +65,7 @@ def create_employee():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/delete_employee/<int:employee_id>', methods=['DELETE'])
+@app.route('/deleteEmployee/<int:employee_id>', methods=['DELETE'])
 def delete_employee(employee_id):
     try:
         session = Session(bind=engine)
@@ -82,7 +83,7 @@ def delete_employee(employee_id):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/update_employee/<int:employee_id>', methods=['PUT'])
+@app.route('/updateEmployee/<int:employee_id>', methods=['PUT'])
 def update_employee(employee_id):
     try:
         session = Session(bind=engine)
@@ -105,7 +106,7 @@ def update_employee(employee_id):
 def calculate_work_days_route():
     try:
         data = request.json
-        employee_id = data.get('employee_id')
+        employee_id = data.get('employeeId')
         month = data.get('month')
         year = data.get('year')
 
@@ -123,13 +124,13 @@ def calculate_work_days_route():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/calculate_total_work_time', methods=['POST'])
+@app.route('/getEmployeeWorkSpan', methods=['POST'])
 def calculate_total_work_time_route():
     try:
         data = request.json
-        employee_id = data.get('employee_id')
-        start_date_str = data.get('start_date')
-        end_date_str = data.get('end_date')
+        employee_id = data.get('id')
+        start_date_str = data.get('datetimeStart')
+        end_date_str = data.get('datetimeEnd')
 
         if not all([employee_id, start_date_str, end_date_str]):
             return jsonify({'error': 'Missing required parameters'}), 400
@@ -148,12 +149,12 @@ def calculate_total_work_time_route():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route('/get_first_entry_time', methods=['POST'])
+@app.route('/getEmployeeEntranceTime', methods=['POST'])
 def get_first_entry_time_route():
     try:
         data = request.json
-        employee_id = data.get('employee_id')
-        target_date_str = data.get('target_date')
+        employee_id = data.get('employeeId')
+        target_date_str = data.get('targetDate')
 
         if not all([employee_id, target_date_str]):
             return jsonify({'error': 'Missing required parameters'}), 400
