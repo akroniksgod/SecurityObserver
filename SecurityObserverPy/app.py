@@ -4,16 +4,9 @@ from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 import logging
 import config
-from Models.Employee import Employee
-from Models.DbQueriesLogger import DbQueriesLogger
-from Models.EventCode import EventCode
-from Models.Event import Event
 import query_data_calculation
-from Models.EntranceCode import EntranceCode
-from Models.EntrancesLogger import EntrancesLogger
 from sqlalchemy.orm import declarative_base
-import threading
-from gevent.pywsgi import WSGIServer
+from Models import Employee, create
 
 # Импорт приложения Карелова Вадима Андреевича
 # import second_app
@@ -24,16 +17,6 @@ app = Flask(__name__)
 db_config = config.DB_CONFIG
 engine = create_engine(config.DB_CONFIG, echo=True)
 Base = declarative_base()
-
-
-def create_db():
-    Base.metadata.create_all(engine, tables=[EventCode.__table__, Employee.__table__, DbQueriesLogger.__table__])
-    Base.metadata.create_all(engine, tables=[Event.__table__])
-    Base.metadata.create_all(engine)
-
-
-def delete_db():
-    Base.metadata.drop_all(engine)
 
 
 @app.route('/getEmployees', methods=['GET'])
@@ -173,7 +156,8 @@ def get_first_entry_time_route():
 
 
 if __name__ == '__main__':
-    app.run()
+    create()
+    # app.run()
 
     # Запуск Flask приложения
     # app_thread = threading.Thread(target=app.run, kwargs={'debug': True})

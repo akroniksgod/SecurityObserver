@@ -1,6 +1,6 @@
 from datetime import timedelta, datetime
 from sqlalchemy.orm import Session
-from Models.Event import Event
+from Models import Event
 from SecurityObserverPy.app import engine
 
 
