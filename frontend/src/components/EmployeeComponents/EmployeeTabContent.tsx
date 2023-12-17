@@ -1,9 +1,11 @@
 import Layout, {Content, Header } from "antd/es/layout/layout";
 import EmployeeMainComponent from "./EmployeeMainComponent";
-import { Button, Space } from "antd";
+import { Space } from "antd";
 import "../../styles/EmployeeTabContent.css";
 import "../../styles/WelcomeComponent.css";
 import CreateEmployeeButtonComponent, {ButtonModes} from "./Operations/CreateEmployeeButtonComponent";
+import React from "react";
+import DeleteEmployeeButtonComponent from "./Operations/DeleteEmployeeButtonComponent";
 
 /**
  * Содержимое вкладки с сотрудниками.
@@ -16,7 +18,7 @@ const EmployeeTabContent: React.FC = () => {
                     <Space>
                         <CreateEmployeeButtonComponent mode={ButtonModes.CREATE}/>
                         <CreateEmployeeButtonComponent mode={ButtonModes.EDIT}/>
-                        <Button disabled>Удалить</Button>
+                        <DeleteEmployeeButtonComponent/>
                     </Space>
                 </div>
             </Header>
