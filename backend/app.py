@@ -182,7 +182,7 @@ def get_first_entry_time_route():
 
 if __name__ == '__main__':
     create_db()
-    create_migrations()
+    # create_migrations()
     app.run()
 
     # Запуск Flask приложения
