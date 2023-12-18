@@ -170,3 +170,4 @@ cython_debug/
 /.idea/vcs.xml
 /.vs
 /SecurirtyObserver.Common/SecurityObserver.Common/obj
+/backend/.idea/
