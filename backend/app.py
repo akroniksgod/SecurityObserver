@@ -8,6 +8,7 @@ import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
 from Models import Employee, create_db
+from migrations import create_migrations
 from flask_cors import CORS
 
 # Импорт приложения Карелова Вадима Андреевича
@@ -188,6 +189,7 @@ def get_first_entry_time_route():
 
 if __name__ == '__main__':
     create_db()
+    # create_migrations()
     app.run()
 
     # Запуск Flask приложения
