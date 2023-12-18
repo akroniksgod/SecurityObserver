@@ -49,7 +49,7 @@ def welcome_route():
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployees', methods=['GET'])
 def get_employees():
     session = Session(bind=engine)
-    query = session.query(Employee).all()
+    query = session.query(Employee).order_by(Employee.id.desc()).all()
     employees = []
     for employee in query:
         employees.append(employee.to_dict())
