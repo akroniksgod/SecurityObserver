@@ -27,6 +27,7 @@ class Event(Base):
     id = Column(Integer, primary_key=True)
     event_code_id = Column(Integer, ForeignKey('event_code.id'))
     date = Column(DateTime(), default=datetime.now)
+    employee_id = Column(Integer, ForeignKey('employee.id'))
 
     __table_args__ = (
         PrimaryKeyConstraint('id', name='event_pk'),
@@ -50,6 +51,7 @@ class EntranceCode(Base):
     __tablename__ = 'entrance_code'
     id = Column(Integer, primary_key=True)
     employee_id = Column(Integer, ForeignKey('employee.id'))
+    code = Column(String(150), nullable=False)
     creation_date = Column(DateTime(), default=datetime.now)
 
     __table_args__ = (
