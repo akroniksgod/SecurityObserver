@@ -151,64 +151,81 @@ def generate_random_bool():
 
 
 def create_event_code():
-    new_eventcode1 = Models.EventCode(event_name='Человек зашел', is_successful_event=True)
-    db.session.add(new_eventcode1)
-    db.session.commit()
-    new_eventcode = Models.EventCode(event_name='Человек вышел', is_successful_event=True)
-    db.session.add(new_eventcode)
-    db.session.commit()
+    with app.app_context():
+        db.create_all()
+        migrate.init_app(app)
+        new_eventcode1 = Models.EventCode(event_name='Человек зашел', is_successful_event=True)
+        db.session.add(new_eventcode1)
+        db.session.commit()
+        new_eventcode = Models.EventCode(event_name='Человек вышел', is_successful_event=True)
+        db.session.add(new_eventcode)
+        db.session.commit()
 
 
 def create_event():
-    start_date_str = "2020-01-01"
-    end_date_str = "2023-12-31"
-    for i in range(200):
-        random_date = generate_random_date(start_date_str, end_date_str)
-        new_event = Models.Event(event_code_id=(random.randint(1,2)), date=random_date, employee_id=(random.randint(1,100)))
-        db.session.add(new_event)
-        db.session.commit()
+    with app.app_context():
+        db.create_all()
+        migrate.init_app(app)
+        start_date_str = "2020-01-01"
+        end_date_str = "2023-12-31"
+        for i in range(200):
+            random_date = generate_random_date(start_date_str, end_date_str)
+            new_event = Models.Event(event_code_id=(random.randint(1,2)), date=random_date, employee_id=(random.randint(1,100)))
+            db.session.add(new_event)
+            db.session.commit()
 
 
 def create_entrances_logger():
-    for i in range(200):
-        new_entrances_logger = Models.EntrancesLogger(event_id=(i+1), message=generate_random_status())
-        db.session.add(new_entrances_logger)
-        db.session.commit()
+    with app.app_context():
+        db.create_all()
+        migrate.init_app(app)
+        for i in range(200):
+            new_entrances_logger = Models.EntrancesLogger(event_id=(i+1), message=generate_random_status())
+            db.session.add(new_entrances_logger)
+            db.session.commit()
 
 
 def create_employee():
-    start_date_str = "1970-01-01"
-    end_date_str = "2000-12-31"
-    for i in range(100):
-        rnd_address = generate_random_street()+generate_random_house_num()
-        new_employee = Models.Employee(surname=generate_random_surname(), name=generate_random_name(), patronymic=generate_random_patronymic(), birthdate=generate_random_date(start_date_str,end_date_str), address=rnd_address, position=generate_random_position(), phone_number=generate_random_phone_number())
-        db.session.add(new_employee)
-        db.session.commit()
+    with app.app_context():
+        db.create_all()
+        migrate.init_app(app)
+        start_date_str = "1970-01-01"
+        end_date_str = "2000-12-31"
+        for i in range(100):
+            rnd_address = generate_random_street()+generate_random_house_num()
+            new_employee = Models.Employee(surname=generate_random_surname(), name=generate_random_name(), patronymic=generate_random_patronymic(), birthdate=generate_random_date(start_date_str,end_date_str), address=rnd_address, position=generate_random_position(), phone_number=generate_random_phone_number())
+            db.session.add(new_employee)
+            db.session.commit()
 
 
 def create_entrance_code():
-    for i in range(100):
-        new_entrance_code = Models.EntranceCode(employee_id=(i+1), code=generate_random_string(15), creation_date=generate_random_date('2020-01-01', '2023-12-31'))
-        db.session.add(new_entrance_code)
-        db.session.commit()
+    with app.app_context():
+        db.create_all()
+        migrate.init_app(app)
+        for i in range(100):
+            new_entrance_code = Models.EntranceCode(employee_id=(i+1), code=generate_random_string(15), creation_date=generate_random_date('2020-01-01', '2023-12-31'))
+            db.session.add(new_entrance_code)
+            db.session.commit()
 
 
 def create_db_queries_logger():
-    for i in range(20):
-        new_db_queries_logger = Models.DbQueriesLogger(date=generate_random_date('2020-01-01','2023-12-31'), table_name=generate_random_table(), is_admin=generate_random_bool(), property_name="Имя свойства", old_value='Старое значение', new_value='Новое значение')
-        db.session.add(new_db_queries_logger)
-        db.session.commit()
+    with app.app_context():
+        db.create_all()
+        migrate.init_app(app)
+        for i in range(20):
+            new_db_queries_logger = Models.DbQueriesLogger(date=generate_random_date('2020-01-01','2023-12-31'), table_name=generate_random_table(), is_admin=generate_random_bool(), property_name="Имя свойства", old_value='Старое значение', new_value='Новое значение')
+            db.session.add(new_db_queries_logger)
+            db.session.commit()
 
 
-with app.app_context():
-    db.create_all()
-    migrate.init_app(app)
-
+def create_migrations():
     # Производить вызов именно в таком порядке
-
     create_employee()
     create_event_code()
     create_entrance_code()
     create_event()
     create_entrances_logger()
     create_db_queries_logger()
+
+if __name__ == 'main':
+    create_migrations()
