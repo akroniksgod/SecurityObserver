@@ -15,8 +15,8 @@ from sqlalchemy.orm import declarative_base
 import threading
 from gevent.pywsgi import WSGIServer
 
-# Импорт приложения Карелова Вадима Андреевича
-# import second_app
+# Импорт приложения для сканирования qr кода
+import camera_scanner
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
@@ -179,5 +179,6 @@ if __name__ == '__main__':
     # app_thread.start()
 
     # Запуск приложения Карелова Вадима Андреевича
-    # second_app_thread = threading.Thread(target=second_app.second_app_function)
-    # second_app_thread.start()
+    second_app_thread = threading.Thread(target=camera_scanner.start_camera_scanner(), daemon=True)
+    second_app_thread.start()
+    second_app_thread.join()
