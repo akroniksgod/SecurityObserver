@@ -1,0 +1,8 @@
+DB_ADAPTER = "postgresql+psycopg2"
+DB_USERNAME = "postgres"
+DB_USER_PASSWORD = "postgres"
+DB_HOST = "localhost"
+DB_PORT = "5432"
+DB_NAME = "SecurityObserverDB"
+DB_CONNECTION_STR = f"{DB_ADAPTER}://{DB_USERNAME}:{DB_USER_PASSWORD}@{DB_HOST}:{DB_PORT}/{DB_NAME}"
+BASE_BACKEND_ROUTE = "/api/securityObserver"

@@ -1,0 +1,9 @@
+.sider-style {
+    background-color: white !important;
+    height: calc(100vh - 110px);
+}
+
+.employee-content-style {
+    height: calc(100vh - 120px);
+    background-color: white;
+}

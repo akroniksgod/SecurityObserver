@@ -1,0 +1,18 @@
+
+.white-background-style {
+    background-color: white;
+}
+
+.main-window-layout {
+    height: auto;
+}
+
+.main-window-header {
+    height: 40px;
+    background-color: lightgreen;
+}
+
+.header-title {
+    margin: 0 0 -5px 0 !important;
+    font-size: 28px !important;
+}
