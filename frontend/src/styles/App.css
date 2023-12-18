@@ -1,0 +1,13 @@
+
+.white-background-style {
+  background-color: white;
+}
+
+.main-window-layout {
+  height: auto;
+}
+
+.main-window-header {
+  height: 52px;
+  background-color: rgb(200, 250, 230);
+}
