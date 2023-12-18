@@ -57,6 +57,20 @@ def get_employees():
     return jsonify(employees)
 
 
+@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployee/id=<int:id>', methods=['GET'])
+def get_employee(id):
+    try:
+        session = Session(bind=engine)
+        employee = session.query(Employee).filter_by(id=id).first()
+        if not employee:
+            return jsonify({'error': 'Employee not found'}), 404
+
+        return jsonify(employee.to_dict()), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 @app.route(f'{config.BASE_BACKEND_ROUTE}/createEmployee', methods=['POST'])
 def create_employee():
     try:
@@ -80,7 +94,7 @@ def create_employee():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route(f'{config.BASE_BACKEND_ROUTE}/deleteEmployee/<int:employee_id>', methods=['DELETE'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/deleteEmployee/id=<int:employee_id>', methods=['DELETE'])
 def delete_employee(employee_id):
     try:
         session = Session(bind=engine)
@@ -98,7 +112,7 @@ def delete_employee(employee_id):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route(f'{config.BASE_BACKEND_ROUTE}/updateEmployee/<int:employee_id>', methods=['PUT'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/updateEmployee/id=<int:employee_id>', methods=['PUT'])
 def update_employee(employee_id):
     try:
         session = Session(bind=engine)
@@ -117,11 +131,10 @@ def update_employee(employee_id):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeWorkedDays', methods=['POST'])
-def calculate_work_days_route():
+@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeWorkedDays/id=<int:employee_id>', methods=['POST'])
+def calculate_work_days_route(employee_id):
     try:
         data = request.json
-        employee_id = data.get('employeeId')
         month = data.get('month')
         year = data.get('year')
 
@@ -139,11 +152,10 @@ def calculate_work_days_route():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeWorkSpan', methods=['POST'])
-def calculate_total_work_time_route():
+@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeWorkSpan/id=<int:employee_id>', methods=['POST'])
+def calculate_total_work_time_route(employee_id):
     try:
         data = request.json
-        employee_id = data.get('id')
         start_date_str = data.get('datetimeStart')
         end_date_str = data.get('datetimeEnd')
 
@@ -164,11 +176,10 @@ def calculate_total_work_time_route():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeEntranceTime', methods=['POST'])
-def get_first_entry_time_route():
+@app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeEntranceTime/id=<int:employee_id>', methods=['POST'])
+def get_first_entry_time_route(employee_id):
     try:
         data = request.json
-        employee_id = data.get('employeeId')
         target_date_str = data.get('targetDate')
 
         if not all([employee_id, target_date_str]):
@@ -188,7 +199,7 @@ def get_first_entry_time_route():
 
 
 if __name__ == '__main__':
-    create_db()
+    # create_db()
     # create_migrations()
     app.run()
 
