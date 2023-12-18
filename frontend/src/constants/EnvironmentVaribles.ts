@@ -6,7 +6,7 @@ export const BACKEND_ROUTE = process.env.REACT_APP_BACKEND_ROUTE ?? "";
 /**
  * Основной путь обращения к контроллеру.
  */
-export const BACKEND_CONTROLLER_ROUTE = `${BACKEND_ROUTE}/api/employees`;
+export const BACKEND_CONTROLLER_ROUTE = `${BACKEND_ROUTE}/api/securityObserver`;
 
 /**
  * Следует ли использовать данные из БД.

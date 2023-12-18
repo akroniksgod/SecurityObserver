@@ -181,7 +181,7 @@ def create_employee():
     end_date_str = "2000-12-31"
     for i in range(100):
         rnd_address = generate_random_street()+generate_random_house_num()
-        new_employee = Models.Employee(surname=generate_random_surname(), name=generate_random_name(), patronymic=generate_random_patronymic(), birthdate=generate_random_date(start_date_str,end_date_str), address=rnd_address, position=generate_random_position(), phone_number=generate_random_phone_number())
+        new_employee = Models.Employee(surname=generate_random_surname(), name=generate_random_name(), patronymic=generate_random_patronymic(), birth_date=generate_random_date(start_date_str, end_date_str), address=rnd_address, position=generate_random_position(), phone_number=generate_random_phone_number())
         db.session.add(new_employee)
         db.session.commit()
 

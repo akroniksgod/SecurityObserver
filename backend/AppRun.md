@@ -5,7 +5,7 @@
 1. Убедитесь, что у вас установлен Python.
 2. Установите необходимые библиотеки, выполнив следующую команду в терминале или командной строке:
     ```bash
-    pip install Flask SQLAlchemy gevent
+    pip install Flask SQLAlchemy gevent Flask-SQLAlchemy Flask-Migrate flask-cors
     ```
    
 ## Настройка базы данных

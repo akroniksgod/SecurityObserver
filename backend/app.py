@@ -8,6 +8,7 @@ import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
 from Models import Employee, create_db
+from flask_cors import CORS
 
 # Импорт приложения Карелова Вадима Андреевича
 # import second_app
@@ -15,6 +16,7 @@ from Models import Employee, create_db
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 app = Flask(__name__, static_folder='../frontend/build')
+CORS(app)
 db_config = config.DB_CONNECTION_STR
 engine = create_engine(config.DB_CONNECTION_STR, echo=True)
 Base = declarative_base()
@@ -46,7 +48,12 @@ def welcome_route():
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployees', methods=['GET'])
 def get_employees():
     session = Session(bind=engine)
-    return session.query(Employee).all()
+    query = session.query(Employee).all()
+    employees = []
+    for employee in query:
+        employees.append(employee.to_dict())
+
+    return jsonify(employees)
 
 
 @app.route(f'{config.BASE_BACKEND_ROUTE}/createEmployee', methods=['POST'])
@@ -59,7 +66,7 @@ def create_employee():
             surname=data.get('surname'),
             name=data.get('name'),
             patronymic=data.get('patronymic'),
-            birthdate=data.get('birthdate'),
+            birth_date=data.get('birthdate'),
             address=data.get('address'),
             position=data.get('position'),
             phoneNumber=data.get('phoneNumber')

@@ -1,6 +1,5 @@
 import { BACKEND_CONTROLLER_ROUTE } from "../constants/EnvironmentVaribles";
 import BaseService from "./BaseService";
-// import {BACKEND_CONTROLLER_ROUTE} from "../constants/Routes";
 // import {CreateBrochureHandlerProps, EditBrochureHandlerProps} from "../types/BrochureTypes";
 
 /**
