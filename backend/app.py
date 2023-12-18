@@ -75,20 +75,19 @@ def get_employee(id):
 def create_employee():
     try:
         session = Session(bind=engine)
-        data = request.json
+        data: dict = request.get_json()
         new_employee = Employee(
-            id=data.get('id'),
             surname=data.get('surname'),
             name=data.get('name'),
             patronymic=data.get('patronymic'),
-            birth_date=data.get('birthdate'),
+            birth_date=data.get('birthDate'),
             address=data.get('address'),
             position=data.get('position'),
-            phoneNumber=data.get('phoneNumber')
+            phone_number=data.get('phoneNumber')
         )
         session.add(new_employee)
         session.commit()
-        return jsonify({'message': 'Employee added successfully!'}), 201
+        return jsonify(new_employee.id), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

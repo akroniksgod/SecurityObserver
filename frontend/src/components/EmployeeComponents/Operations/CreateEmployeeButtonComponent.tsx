@@ -201,7 +201,7 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
         let response;
         switch (props.mode) {
             case ButtonModes.CREATE: {
-                // response = props.employeeStore?.handleCreateBrochure(values);
+                response = props.employeeStore?.handleCreateEmployee(values);
             } break;
             case ButtonModes.EDIT: {
                 // const brochureEditProps: EditBrochureHandlerProps = {

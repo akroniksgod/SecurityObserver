@@ -1,5 +1,5 @@
 import { observable, action, makeAutoObservable } from "mobx";
-import {ChartPointsProps, EmployeeDbProps, EmployeeProps} from "../types/EmployeesTypes";
+import {ChartPointsProps, CreateEmployeeHandlerProps, EmployeeDbProps, EmployeeProps} from "../types/EmployeesTypes";
 import {cerr, cout, random } from "../Utils";
 import { SHOULD_USE_ONLY_DB_DATA } from "../constants/EnvironmentVaribles";
 import EmployeeService from "../services/EmployeeService";
@@ -68,6 +68,55 @@ class EmployeeStore {
         this.onEmployeeClick = this.onEmployeeClick.bind(this);
         this.saveEmployeeToSessionStorage = this.saveEmployeeToSessionStorage.bind(this);
         this.updateEmployeeList = this.updateEmployeeList.bind(this);
+        this.handleCreateEmployee = this.handleCreateEmployee.bind(this);
+        this.updateEmployeeData = this.updateEmployeeData.bind(this);
+    }
+
+    /**
+     * Обновляет данные выбранного каталога.
+     * @param id Идентификатор каталога.
+     * @private
+     */
+    @action private async updateEmployeeData(id: number) {
+        const responses =  await Promise.all([
+            EmployeeService.getAllEmployees(),
+            EmployeeService.getEmployeeById(id),
+        ]);
+
+        const brochuresAxiosResponse = responses[0];
+        const brochureAxiosResponse = responses[1];
+
+        if (brochuresAxiosResponse && brochuresAxiosResponse.data instanceof Array) {
+            this.employees = brochuresAxiosResponse.data.map(employee => this.getProcessedEmployee(employee)!);
+        }
+
+        if (brochureAxiosResponse) {
+            await this.onEmployeeClick(id);
+            // this.currentBrochure = brochureAxiosResponse.data;
+        }
+    }
+
+    /**
+     * Обрабатывает добавление сотрудника.
+     * @param employee Сотрудник.
+     */
+    public async handleCreateEmployee(employee: CreateEmployeeHandlerProps) {
+        this.isEmployeeLoading = true;
+        this.isEmployeeMenuLoading = true;
+        const {data} = await EmployeeService.createEmployee(employee);
+
+        const id = data;
+        if (!(typeof id === "number") || id === -1) {
+            this.isEmployeeLoading = false;
+            this.isEmployeeMenuLoading = false;
+            return Promise.reject("Ошибка при создании каталога");
+        }
+
+        await this.updateEmployeeData(id);
+
+        this.isEmployeeLoading = false;
+        this.isEmployeeMenuLoading = false;
+        return Promise.resolve("Каталог успешно создан");
     }
 
     /**
@@ -92,9 +141,10 @@ class EmployeeStore {
      * @param employeeId Идентификатор сотрудника.
      */
     @action public async onEmployeeClick(employeeId: number) {
+        window.history.pushState({id: employeeId}, "", `/employees/${employeeId}`);
         if (isNaN(employeeId) || employeeId === -1) return;
 
-        // this.isBrochureSelected = true;
+        // this.isEmployeeSelected = true;
         this.isEmployeeLoading = true;
 
         let foundEmployee = null;

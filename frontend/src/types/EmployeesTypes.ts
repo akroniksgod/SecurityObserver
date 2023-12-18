@@ -55,6 +55,22 @@ export interface ChartPointsProps {
    attendance: number;
 }
 
+/**
+ * Базовые свойства компонентов.
+ * @param employeeStore Хранилище сотрудников.
+ */
 export interface BaseStoreInjector {
    employeeStore?: EmployeeStore;
+}
+
+/**
+ * Свойства отправляемого в БД сотрудника (редактирование).
+ */
+interface EditEmployeeHandlerProps extends EmployeeProps {
+}
+
+/**
+ * Свойства отправляемого в БД сотрудника (создание).
+ */
+export interface CreateEmployeeHandlerProps extends EditEmployeeHandlerProps {
 }
