@@ -1,0 +1,9 @@
+.employee-menu-style {
+    height: calc(100vh - 130px) !important;
+    margin-left: 50px;
+    overflow-y: scroll;
+}
+
+.empty-menu-style {
+    margin-top: calc(calc(100vh - 110px) / 2.5);
+}
