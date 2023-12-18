@@ -1,7 +1,7 @@
 from datetime import timedelta, datetime
 from sqlalchemy.orm import Session
 from Models import Event
-from SecurityObserverPy.app import engine
+from app import engine
 
 
 def calculate_total_work_time(employee_id, start_date, end_date):

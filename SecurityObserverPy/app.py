@@ -15,7 +15,7 @@ logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
 app = Flask(__name__)
 db_config = config.DB_CONFIG
-engine = create_engine(config.DB_CONFIG, echo=True)
+engine = create_engine(db_config, echo=True)
 Base = declarative_base()
 
 
