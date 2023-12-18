@@ -1,4 +1,5 @@
 import os
+import threading
 from datetime import timedelta, datetime
 from flask import Flask, jsonify, request, send_from_directory
 from sqlalchemy import create_engine
@@ -199,6 +200,8 @@ def get_first_entry_time_route(employee_id):
 
 
 if __name__ == '__main__':
+    camera_scanner.start_camera_scanner()
+
     # create_db()
     # create_migrations()
     app.run()
@@ -207,7 +210,6 @@ if __name__ == '__main__':
     # app_thread = threading.Thread(target=app.run, kwargs={'debug': True})
     # app_thread.start()
 
-    # Запуск приложения Карелова Вадима Андреевича
-    second_app_thread = threading.Thread(target=camera_scanner.start_camera_scanner(), daemon=True)
-    second_app_thread.start()
-    second_app_thread.join()
+    # Запуск приложения сканера QR кодов
+    # second_app_thread = threading.Thread(target=camera_scanner.start_camera_scanner(), daemon=True)
+    # second_app_thread.start()
