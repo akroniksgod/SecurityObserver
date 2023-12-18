@@ -5,11 +5,13 @@ from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
 import Models
 import string
+import config
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql://postgres:postgres@localhost:5432/SecurityObserverDB'
+app.config['SQLALCHEMY_DATABASE_URI'] = config.DB_CONNECTION_STR
 db = SQLAlchemy(app)
 migrate = Migrate(app, db)
+
 
 def generate_random_date(start_date, end_date):
     # Преобразование строк в объекты datetime
@@ -26,12 +28,16 @@ def generate_random_date(start_date, end_date):
     random_date = start_date + timedelta(days=random_days)
 
     return random_date
+
+
 def generate_random_status():
     # Генерация случайного числа (0 или 1)
     random_number = random.randint(0, 1)
 
     # Возвращение "Успешно", если random_number равен 1, иначе "Неуспешно"
     return "Успешно" if random_number == 1 else "Неуспешно"
+
+
 def generate_random_surname():
     # Генерация случайного числа (0 или 1)
     random_number = random.randint(0, 5)
@@ -42,6 +48,8 @@ def generate_random_surname():
         case 3: return "Соколов"
         case 4: return "Сидоров"
         case 5: return "Денисов"
+
+
 def generate_random_name():
     # Генерация случайного числа (0 или 1)
     random_number = random.randint(0, 5)
@@ -52,6 +60,8 @@ def generate_random_name():
         case 3: return "Вячеслав"
         case 4: return "Юрий"
         case 5: return "Сергей"
+
+
 def generate_random_patronymic():
     # Генерация случайного числа (0 или 1)
     random_number = random.randint(0, 5)
@@ -62,6 +72,8 @@ def generate_random_patronymic():
         case 3: return "Вячеславович"
         case 4: return "Юрьевич"
         case 5: return "Сергеевич"
+
+
 def generate_random_street():
     # Генерация случайного числа (0 или 1)
     random_number = random.randint(0, 5)
@@ -72,6 +84,8 @@ def generate_random_street():
         case 3: return "Веденеева, "
         case 4: return "Поздеева, "
         case 5: return "Сталина, "
+
+
 def generate_random_house_num():
     # Генерация случайного числа (0 или 1)
     random_number = random.randint(0, 5)
@@ -82,6 +96,8 @@ def generate_random_house_num():
         case 3: return "44"
         case 4: return "33"
         case 5: return "12"
+
+
 def generate_random_position():
     # Генерация случайного числа (0 или 1)
     random_number = random.randint(0, 5)
@@ -92,6 +108,8 @@ def generate_random_position():
         case 3: return "Инженер"
         case 4: return "Рабочий"
         case 5: return "Уборщик"
+
+
 def generate_random_phone_number():
     # Генерация случайного кода оператора (например, 901)
     operator_code = str(random.randint(900, 999))
@@ -103,6 +121,8 @@ def generate_random_phone_number():
     full_phone_number = f"+7 {operator_code}{phone_number[:3]}{phone_number[3:5]}{phone_number[5:]}"
 
     return full_phone_number
+
+
 def generate_random_string(length=15):
     # Возможные символы для генерации строки
     characters = string.ascii_letters + string.digits + string.punctuation
@@ -111,6 +131,8 @@ def generate_random_string(length=15):
     random_string = ''.join(random.choice(characters) for _ in range(length))
 
     return random_string
+
+
 def generate_random_table():
     random_number = random.randint(0, 4)
     match random_number:
@@ -119,11 +141,15 @@ def generate_random_table():
         case 2: return "event_code"
         case 3: return "entrance_code"
         case 4: return "employee"
+
+
 def generate_random_bool():
     random_number = random.randint(0, 1)
     match random_number:
         case 0: return True
         case 1: return False
+
+
 def create_event_code():
     new_eventcode1 = Models.EventCode(event_name='Человек зашел', is_successful_event=True)
     db.session.add(new_eventcode1)
@@ -131,6 +157,8 @@ def create_event_code():
     new_eventcode = Models.EventCode(event_name='Человек вышел', is_successful_event=True)
     db.session.add(new_eventcode)
     db.session.commit()
+
+
 def create_event():
     start_date_str = "2020-01-01"
     end_date_str = "2023-12-31"
@@ -139,11 +167,15 @@ def create_event():
         new_event = Models.Event(event_code_id=(random.randint(1,2)), date=random_date, employee_id=(random.randint(1,100)))
         db.session.add(new_event)
         db.session.commit()
+
+
 def create_entrances_logger():
     for i in range(200):
         new_entrances_logger = Models.EntrancesLogger(event_id=(i+1), message=generate_random_status())
         db.session.add(new_entrances_logger)
         db.session.commit()
+
+
 def create_employee():
     start_date_str = "1970-01-01"
     end_date_str = "2000-12-31"
@@ -152,17 +184,20 @@ def create_employee():
         new_employee = Models.Employee(surname=generate_random_surname(), name=generate_random_name(), patronymic=generate_random_patronymic(), birthdate=generate_random_date(start_date_str,end_date_str), address=rnd_address, position=generate_random_position(), phone_number=generate_random_phone_number())
         db.session.add(new_employee)
         db.session.commit()
+
+
 def create_entrance_code():
     for i in range(100):
         new_entrance_code = Models.EntranceCode(employee_id=(i+1), code=generate_random_string(15), creation_date=generate_random_date('2020-01-01', '2023-12-31'))
         db.session.add(new_entrance_code)
         db.session.commit()
+
+
 def create_db_queries_logger():
     for i in range(20):
         new_db_queries_logger = Models.DbQueriesLogger(date=generate_random_date('2020-01-01','2023-12-31'), table_name=generate_random_table(), is_admin=generate_random_bool(), property_name="Имя свойства", old_value='Старое значение', new_value='Новое значение')
         db.session.add(new_db_queries_logger)
         db.session.commit()
-
 
 
 with app.app_context():
@@ -171,9 +206,9 @@ with app.app_context():
 
     # Производить вызов именно в таком порядке
 
-    # create_employee()
-    # create_event_code()
-    # create_entrance_code()
-    # create_event()
-    # create_entrances_logger()
-    # create_db_queries_logger()
+    create_employee()
+    create_event_code()
+    create_entrance_code()
+    create_event()
+    create_entrances_logger()
+    create_db_queries_logger()
