@@ -93,7 +93,7 @@ def create_employee():
         return jsonify({'error': str(e)}), 500
 
 
-@app.route(f'{config.BASE_BACKEND_ROUTE}/deleteEmployee/id=<int:employee_id>', methods=['DELETE'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/deleteEmployee/id=<int:employee_id>', methods=['GET'])
 def delete_employee(employee_id):
     try:
         session = Session(bind=engine)
@@ -105,7 +105,7 @@ def delete_employee(employee_id):
         session.delete(employee)
         session.commit()
 
-        return jsonify(), 200
+        return jsonify("ok"), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

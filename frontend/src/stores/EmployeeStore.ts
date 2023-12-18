@@ -77,6 +77,36 @@ class EmployeeStore {
         this.handleCreateEmployee = this.handleCreateEmployee.bind(this);
         this.updateEmployeeData = this.updateEmployeeData.bind(this);
         this.handleEditEmployee = this.handleEditEmployee.bind(this);
+        this.handleDeleteEmployee = this.handleDeleteEmployee.bind(this);
+    }
+
+    /**
+     * Обработчик удаления сотрудника.
+     * @param employeeId Идентификатор сотрудника.
+     */
+    @action public async handleDeleteEmployee(employeeId: number) {
+        if (employeeId === -1) {
+            return Promise.reject("Ошибка при удалении сотрудника");
+        }
+
+        return await EmployeeService.deleteEmployeeById(employeeId).then(
+            async(response) => {
+                await this.updateEmployeeList();
+
+                this.currentEmployee = null;
+                this.saveEmployeeToSessionStorage(null);
+
+                const data = response.data;
+                if (!isNaN(parseInt(data)) && parseInt(data) === -1) {
+                    return Promise.reject("Ошибка при удалении сотрудника");
+                }
+                return Promise.resolve("Сотрудник удалён успешно");
+            },
+            (error) => {
+                cerr(error);
+                return Promise.reject("Ошибка при удалении сотрудника");
+            }
+        );
     }
 
     /**
