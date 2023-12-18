@@ -7,7 +7,7 @@ import logging
 import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
-from Models import Employee, create_db
+from Models import Employee, create_db, to_snake_case
 from migrations import create_migrations
 from flask_cors import CORS
 
@@ -100,18 +100,18 @@ def delete_employee(employee_id):
         employee = session.query(Employee).filter_by(id=employee_id).first()
 
         if not employee:
-            return jsonify({'error': 'Employee not found'}), 404
+            return jsonify('Сотрудник не найден в базе данных'), 404
 
         session.delete(employee)
         session.commit()
 
-        return jsonify({'message': 'Employee deleted successfully!'}), 200
+        return jsonify(), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
-@app.route(f'{config.BASE_BACKEND_ROUTE}/updateEmployee/id=<int:employee_id>', methods=['PUT'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/updateEmployee/id=<int:employee_id>', methods=['POST'])
 def update_employee(employee_id):
     try:
         session = Session(bind=engine)
@@ -119,12 +119,12 @@ def update_employee(employee_id):
         if not employee:
             return jsonify({'error': 'Employee not found'}), 404
 
-        update_data = request.json
+        update_data = request.get_json()
         for key, value in update_data.items():
-            setattr(employee, key, value)
+            setattr(employee, to_snake_case(key), value)
 
         session.commit()
-        return jsonify({'message': f'Employee {employee_id} updated successfully!'}), 200
+        return jsonify(employee.id), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

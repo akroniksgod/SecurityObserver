@@ -196,7 +196,7 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
      * @param values Значения полей.
      */
     const handleDbAction = (values: any) => {
-        values.birthDate = dayjs(values?.date).format('DD.MM.YYYY');
+        values.birthDate = dayjs(values?.birthDate).format('DD.MM.YYYY');
 
         let response;
         switch (props.mode) {
@@ -204,19 +204,14 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
                 response = props.employeeStore?.handleCreateEmployee(values);
             } break;
             case ButtonModes.EDIT: {
-                // const brochureEditProps: EditBrochureHandlerProps = {
-                //     name: values.name,
-                //     date: values.date,
-                //     edition: values.edition
-                // };
-                // response = props.employeeStore?.handleEditBrochure(brochureEditProps);
+                response = props.employeeStore?.handleEditEmployee(values);
             } break;
         }
 
-        // response?.then(
-        //     (resolve: string) => {openNotification("Успех", resolve, "success")},
-        //     (error: string) => {openNotification("Ошибка", error, "error")}
-        // ).finally(() => form.resetFields());
+        response?.then(
+            (resolve: string) => {openNotification("Успех", resolve, "success")},
+            (error: string) => {openNotification("Ошибка", error, "error")}
+        ).finally(() => form.resetFields());
     };
 
     /**

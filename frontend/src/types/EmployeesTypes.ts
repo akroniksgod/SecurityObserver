@@ -66,7 +66,7 @@ export interface BaseStoreInjector {
 /**
  * Свойства отправляемого в БД сотрудника (редактирование).
  */
-interface EditEmployeeHandlerProps extends EmployeeProps {
+export interface EditEmployeeHandlerProps extends EmployeeProps {
 }
 
 /**

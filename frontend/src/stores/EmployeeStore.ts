@@ -1,5 +1,11 @@
 import { observable, action, makeAutoObservable } from "mobx";
-import {ChartPointsProps, CreateEmployeeHandlerProps, EmployeeDbProps, EmployeeProps} from "../types/EmployeesTypes";
+import {
+    ChartPointsProps,
+    CreateEmployeeHandlerProps,
+    EditEmployeeHandlerProps,
+    EmployeeDbProps,
+    EmployeeProps
+} from "../types/EmployeesTypes";
 import {cerr, cout, random } from "../Utils";
 import { SHOULD_USE_ONLY_DB_DATA } from "../constants/EnvironmentVaribles";
 import EmployeeService from "../services/EmployeeService";
@@ -70,6 +76,53 @@ class EmployeeStore {
         this.updateEmployeeList = this.updateEmployeeList.bind(this);
         this.handleCreateEmployee = this.handleCreateEmployee.bind(this);
         this.updateEmployeeData = this.updateEmployeeData.bind(this);
+        this.handleEditEmployee = this.handleEditEmployee.bind(this);
+    }
+
+    /**
+     * Обрабатывает редактирования сотрудника.
+     * @param employee Сотрудник.
+     */
+    @action public async handleEditEmployee(employee: EditEmployeeHandlerProps) {
+        console.log(employee)
+        const id = this.currentEmployee?.id ?? -1;
+        const rejectReason = "Не удалось изменить сотрудника";
+        if (id === -1) {
+            return Promise.reject(rejectReason);
+        }
+
+        return await EmployeeService.updateEmployee(id, employee).then(
+            async(response) => {
+                const data = response.data;
+
+                const isResponseString = typeof data === "string";
+                const isResponseNumber = typeof data === "number";
+                const numberParseAttempt = parseInt(data);
+
+                if (!isResponseString && !isResponseNumber) {
+                    return Promise.reject(rejectReason);
+                }
+
+                if (isResponseString && !isNaN(numberParseAttempt) && numberParseAttempt === -1) {
+                    return Promise.reject(rejectReason);
+                }
+
+                if (isResponseNumber && data === -1) {
+                    return Promise.reject(rejectReason);
+                }
+                await this.updateEmployeeData(id);
+
+                this.isEmployeeLoading = false;
+                this.isEmployeeMenuLoading = false;
+                return Promise.resolve("Сотрудник успешно изменён");
+            },
+            (error) => {
+                cerr(error);
+                this.isEmployeeLoading = false;
+                this.isEmployeeMenuLoading = false;
+                return Promise.reject(rejectReason);
+            },
+        );
     }
 
     /**
@@ -83,16 +136,16 @@ class EmployeeStore {
             EmployeeService.getEmployeeById(id),
         ]);
 
-        const brochuresAxiosResponse = responses[0];
-        const brochureAxiosResponse = responses[1];
+        const employeesAxiosResponse = responses[0];
+        const employeeAxiosResponse = responses[1];
 
-        if (brochuresAxiosResponse && brochuresAxiosResponse.data instanceof Array) {
-            this.employees = brochuresAxiosResponse.data.map(employee => this.getProcessedEmployee(employee)!);
+        if (employeesAxiosResponse && employeesAxiosResponse.data instanceof Array) {
+            this.employees = employeesAxiosResponse.data.map(employee => this.getProcessedEmployee(employee)!);
         }
 
-        if (brochureAxiosResponse) {
+        if (employeeAxiosResponse) {
             await this.onEmployeeClick(id);
-            // this.currentBrochure = brochureAxiosResponse.data;
+            // this.currentEmployee = employeeAxiosResponse.data;
         }
     }
 
