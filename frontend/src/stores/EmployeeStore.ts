@@ -1,8 +1,9 @@
 import { observable, action, makeAutoObservable } from "mobx";
-import {ChartPointsProps, EmployeeProps} from "../types/EmployeesTypes";
+import {ChartPointsProps, EmployeeDbProps, EmployeeProps} from "../types/EmployeesTypes";
 import {cerr, cout, random } from "../Utils";
 import { SHOULD_USE_ONLY_DB_DATA } from "../constants/EnvironmentVaribles";
 import EmployeeService from "../services/EmployeeService";
+import dayjs from "dayjs";
 
 /**
  * Путь к данным каталога в session storage.
@@ -63,9 +64,27 @@ class EmployeeStore {
         this.getSavedEmployee = this.getSavedEmployee.bind(this);
         this.reset = this.reset.bind(this);
         this.getSavedEmployeeMenu = this.getSavedEmployeeMenu.bind(this);
+        this.getProcessedEmployee = this.getProcessedEmployee.bind(this);
         this.onEmployeeClick = this.onEmployeeClick.bind(this);
         this.saveEmployeeToSessionStorage = this.saveEmployeeToSessionStorage.bind(this);
         this.updateEmployeeList = this.updateEmployeeList.bind(this);
+    }
+
+    /**
+     * Возвращает преобразованного сотрудника под компоненты.
+     * @param initialEmployee Исходный сотрудник.
+     */
+    private getProcessedEmployee(initialEmployee: EmployeeDbProps | null) {
+        if (initialEmployee === null) return null;
+        return {
+            key: `employee_${initialEmployee.id}`,
+            id: initialEmployee.id,
+            fullName: `${initialEmployee.surname} ${initialEmployee.name} ${initialEmployee.patronymic}`,
+            address: initialEmployee.address,
+            birthDate: dayjs(initialEmployee.birthDate).format("DD.MM.YYYY"),
+            position: initialEmployee.position,
+            phoneNumber: initialEmployee.phoneNumber,
+        };
     }
 
     /**
@@ -83,14 +102,13 @@ class EmployeeStore {
         if (SHOULD_USE_ONLY_DB_DATA === "false") {
             foundEmployee = this.employees.find(employee => employee.id === employeeId) ?? null;
         } else {
-            await EmployeeService.getEmployeeById(employeeId).then((response: {data: any}) => {
-                cout(response.data);
+            await EmployeeService.getEmployeeById(employeeId).then((response: {data: EmployeeDbProps}) => {
+                cout(`${response.data}`);
                 foundEmployee = response.data;
             });
         }
-        // foundEmployee = this.employees.find(employee => employee.id === employeeId) ?? null;
 
-        this.currentEmployee = foundEmployee;
+        this.currentEmployee = this.getProcessedEmployee(foundEmployee);
         this.saveEmployeeToSessionStorage(foundEmployee);
 
         setTimeout(() => {
@@ -174,7 +192,7 @@ class EmployeeStore {
                 cout(data);
                 if (!(data instanceof Array)) return;
 
-                this.employees = data;
+                this.employees = data.map(employee => this.getProcessedEmployee(employee)!);
             },
             (error) => cerr(error)
         );
