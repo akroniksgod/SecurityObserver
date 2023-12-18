@@ -1,15 +1,30 @@
+from dataclasses import dataclass
+
 from sqlalchemy import Table, Index, Integer, String, Column, Text, \
     DateTime, Boolean, PrimaryKeyConstraint, \
     UniqueConstraint, ForeignKeyConstraint, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 import config
+from sqlalchemy import inspect
+from re import sub
 
 engine = create_engine(config.DB_CONNECTION_STR)
 
 Base = declarative_base()
 
 
+# Define a function to convert a string to camel case
+def camel_case(s):
+    # Use regular expression substitution to replace underscores and hyphens with spaces,
+    # then title case the string (capitalize the first letter of each word), and remove spaces
+    s = sub(r"(_|-)+", " ", s).title().replace(" ", "")
+
+    # Join the string, ensuring the first letter is lowercase
+    return ''.join([s[0].lower(), s[1:]])
+
+
+@dataclass
 class EventCode(Base):
     __tablename__ = 'event_code'
     id = Column(Integer, primary_key=True)
@@ -21,7 +36,11 @@ class EventCode(Base):
         {},
     )
 
+    def to_dict(self):
+        return {camel_case(c.key): getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
+
+@dataclass
 class Event(Base):
     __tablename__ = 'event'
     id = Column(Integer, primary_key=True)
@@ -34,7 +53,12 @@ class Event(Base):
         {},
     )
 
+    def to_dict(self):
+        return {camel_case(c.key): getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
+
+
+@dataclass
 class EntrancesLogger(Base):
     __tablename__ = 'entrances_logger'
     id = Column(Integer, primary_key=True)
@@ -46,7 +70,12 @@ class EntrancesLogger(Base):
         {},
     )
 
+    def to_dict(self):
+        return {camel_case(c.key): getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
+
+
+@dataclass
 class EntranceCode(Base):
     __tablename__ = 'entrance_code'
     id = Column(Integer, primary_key=True)
@@ -59,14 +88,19 @@ class EntranceCode(Base):
         {},
     )
 
+    def to_dict(self):
+        return {camel_case(c.key): getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
+
+
+@dataclass
 class Employee(Base):
     __tablename__ = 'employee'
     id = Column(Integer, primary_key=True)
     surname = Column(String(100), nullable=False)
     name = Column(String(100), nullable=False)
     patronymic = Column(String(100), nullable=False)
-    birthdate = Column(DateTime(), default=datetime.now)
+    birth_date = Column(DateTime(), default=datetime.now)
     address = Column(String(250), nullable=False)
     position = Column(String(100), nullable=False)
     phone_number = Column(String(13), nullable=False)
@@ -76,7 +110,12 @@ class Employee(Base):
         UniqueConstraint('phone_number')
     )
 
+    def to_dict(self):
+        return {camel_case(c.key): getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
+
+
+@dataclass
 class DbQueriesLogger(Base):
     __tablename__ = 'db_queries_logger'
     id = Column(Integer, primary_key=True)
@@ -91,6 +130,9 @@ class DbQueriesLogger(Base):
         PrimaryKeyConstraint('id', name='db_queries_logger_pk'),
         {},
     )
+
+    def to_dict(self):
+        return {camel_case(c.key): getattr(self, c.key) for c in inspect(self).mapper.column_attrs}
 
 
 def create_db():
