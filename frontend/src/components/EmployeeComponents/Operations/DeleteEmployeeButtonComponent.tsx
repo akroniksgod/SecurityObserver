@@ -25,12 +25,12 @@ const DeleteEmployeeButtonComponent: React.FC<DeleteEmployeeButtonComponentProps
      */
     const onOkClick = (): Promise<void> => {
         const id = currentEmployee?.id ?? -1;
-        // const response = props.employeeStore?.handleDeleteEmployee(id);
-        //
-        // response?.then(
-        //     (resolve: string) => {openNotification("Успех", resolve, "success")},
-        //     (error: string) => {openNotification("Ошибка", error, "error")}
-        // );
+        const response = props.employeeStore?.handleDeleteEmployee(id);
+
+        response?.then(
+            (resolve: string) => {openNotification("Успех", resolve, "success")},
+            (error: string) => {openNotification("Ошибка", error, "error")}
+        );
         return Promise.resolve();
     };
 

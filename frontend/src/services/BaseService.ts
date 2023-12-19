@@ -1,6 +1,16 @@
 import axios from "axios";
 
 /**
+ * Конфигурация post запроса.
+ */
+const config = {
+    headers: {
+        'Content-Type': 'application/json',
+        'Access-Control-Allow-Origin': '*'
+    }
+};
+
+/**
  * Базовый класс сервис.
  * Имеет методы для отправки http запросов к backend.
  */
@@ -35,7 +45,7 @@ class BaseService {
         //     }
         // });
         // return await axios.post(route, formData);
-        return await axios.post(route, JSON.stringify(params));
+        return await axios.post(route, JSON.stringify(params), config);
     }
 }
 
