@@ -7,7 +7,8 @@ import logging
 import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
-from Models import Employee, create_db, to_snake_case
+from Models import Employee, create_db
+from utils import to_snake_case
 from migrations import create_migrations
 from flask_cors import CORS
 
@@ -154,22 +155,22 @@ def calculate_work_days_route(employee_id):
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeWorkSpan/id=<int:employee_id>', methods=['POST'])
 def calculate_total_work_time_route(employee_id):
     try:
-        data = request.json
+        data = request.get_json()
         start_date_str = data.get('datetimeStart')
         end_date_str = data.get('datetimeEnd')
 
         if not all([employee_id, start_date_str, end_date_str]):
-            return jsonify({'error': 'Missing required parameters'}), 400
+            return jsonify({'error': 'Нет обходимых параметров'}), 400
 
-        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        start_date = datetime.strptime(start_date_str, '%d-%m-%Y')
+        end_date = datetime.strptime(end_date_str, '%d-%m-%Y')
 
         total_work_time = query_data_calculation.calculate_total_work_time(int(employee_id), start_date, end_date)
-
+        print(total_work_time)
         if total_work_time is not None:
-            return jsonify({'total_work_time': str(total_work_time)}), 200
+            return jsonify(str(total_work_time)), 200
         else:
-            return jsonify({'error': 'Error calculating total work time'}), 500
+            return jsonify({'error': 'Ошибка расчёта времени'}), 500
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

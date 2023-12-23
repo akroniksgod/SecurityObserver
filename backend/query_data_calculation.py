@@ -15,13 +15,19 @@ def calculate_total_work_time(employee_id, start_date, end_date):
         last_event = None
 
         for event in events:
-            if event.event_code_id == 1:  # 1 - код события "вход"
+            # 1 - код события "вход"
+            is_entry_code = event.event_code_id == 1
+
+            # 2 - код события "выход"
+            is_exit_code = event.event_code_id == 2
+
+            if is_entry_code:
                 last_event = event
-            elif event.event_code_id == 2 and last_event is not None:  # 2 - код события "выход"
+            elif is_exit_code and last_event is not None:
                 total_work_time += event.date - last_event.date
                 last_event = None
 
-        return total_work_time
+        return total_work_time.seconds // 3600
 
     except Exception as e:
         print(f"Error calculating total work time: {str(e)}")
