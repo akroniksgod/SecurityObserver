@@ -7,6 +7,7 @@ import ChartComponent from "./ChartComponent";
 import "../../styles/EmployeeComponent.css";
 import locale from 'antd/es/date-picker/locale/ru_RU';
 import 'dayjs/locale/ru';
+import EmployeeWorkSpanComponent from "./EmployeeWorkSpanComponent";
 const { RangePicker } = DatePicker;
 
 interface FormMetadataProps {
@@ -113,16 +114,9 @@ const CurrentEmployeeComponent: React.FC<CurrentEmployeeComponentProps> = inject
                                 //     </Form.Item>
                                 // );
                                 case "timeCheck": return (
-                                    <>
-                                        {getFormItem(
-                                            label,
-                                            metadata,
-                                            <RangePicker locale={locale} />
-                                        )}
-                                        <Form.Item label={""} key={`${metadata.key}_value`} style={{ maxWidth: 280, marginLeft: 220 }}>
-                                            <Input readOnly placeholder={"Отработанные часы за период"}/>
-                                        </Form.Item>
-                                    </>
+                                    <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
+                                        <EmployeeWorkSpanComponent/>
+                                    </Form.Item>
                                 );
                                 case "daysCheck": return (
                                     <>
@@ -141,7 +135,7 @@ const CurrentEmployeeComponent: React.FC<CurrentEmployeeComponentProps> = inject
                                     return getFormItem(
                                         label,
                                         metadata,
-                                        <Input readOnly value={val}/>
+                                        <Input readOnly defaultValue={val}/>
                                     );
                                 }
                             }

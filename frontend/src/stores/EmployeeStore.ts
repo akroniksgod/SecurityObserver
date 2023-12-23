@@ -78,6 +78,28 @@ class EmployeeStore {
         this.updateEmployeeData = this.updateEmployeeData.bind(this);
         this.handleEditEmployee = this.handleEditEmployee.bind(this);
         this.handleDeleteEmployee = this.handleDeleteEmployee.bind(this);
+        this.getEmployeeWorkSpan = this.getEmployeeWorkSpan.bind(this);
+    }
+
+    /**
+     * Возвращает число отработанных часов за выбранный период.
+     * @param datetimeStart Начало периода.
+     * @param datetimeEnd Конец периода.
+     */
+    @action public async getEmployeeWorkSpan(datetimeStart: string, datetimeEnd: string) {
+        const args = {"datetimeStart": datetimeStart, "datetimeEnd": datetimeEnd};
+        const employee = this.currentEmployee;
+        if (!employee) return Promise.reject("");
+
+        return await EmployeeService.getEmployeeWorkSpan(employee.id, args).then(
+            (response) => {
+                return Promise.resolve(response.data.toString());
+            },
+            (error) => {
+                cerr(`${error}`);
+                return Promise.reject("Ошибка в расчёте часов за выбранный период");
+            }
+        );
     }
 
     /**
