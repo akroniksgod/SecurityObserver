@@ -2,10 +2,10 @@ import { DatePicker, Input } from "antd";
 import locale from 'antd/es/date-picker/locale/ru_RU';
 import dayjs from "dayjs";
 import 'dayjs/locale/ru';
-import { BaseStoreInjector } from "../../types/EmployeesTypes";
+import { BaseStoreInjector } from "../../../types/EmployeesTypes";
 import { inject, observer } from "mobx-react";
 import { useState } from "react";
-import { openNotification } from "../NotificationComponent";
+import { openNotification } from "../../NotificationComponent";
 const { RangePicker } = DatePicker;
 
 /**
@@ -36,8 +36,13 @@ const EmployeeWorkSpanComponent: React.FC<EmployeeWorkSpanComponentProps> = inje
         response?.then(
             (res) => {
                 const msg = "Число отработанных часов за выбранный период: ";
+                if (isNaN(parseFloat(res)) || parseFloat(res) === 0) {
+                    openNotification("Результат", "Нет данных за выбранный период", "warning");
+                    return;
+                }
+
                 setHours(parseFloat(res));
-                openNotification("Успех", msg + res, "success")
+                openNotification("Успех", msg + res, "success");
             },
             (error) => openNotification("Ошибка", error, "error"),
         );
