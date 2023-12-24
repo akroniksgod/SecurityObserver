@@ -78,6 +78,77 @@ class EmployeeStore {
         this.updateEmployeeData = this.updateEmployeeData.bind(this);
         this.handleEditEmployee = this.handleEditEmployee.bind(this);
         this.handleDeleteEmployee = this.handleDeleteEmployee.bind(this);
+        this.getEmployeeWorkSpan = this.getEmployeeWorkSpan.bind(this);
+        this.getEmployeeWorkedDays = this.getEmployeeWorkedDays.bind(this);
+        this.getEmployeeEntranceTime = this.getEmployeeEntranceTime.bind(this);
+    }
+
+    /**
+     * Возвращает точную дату входа в офис в выбранный день.
+     * @param date Дата.
+     */
+    @action public async getEmployeeEntranceTime(date: string) {
+        const args = {"date": date};
+        const employee = this.currentEmployee;
+        if (!employee) return Promise.reject("");
+
+        return await EmployeeService.getEmployeeEntranceTime(employee.id, args).then(
+            (response) => {
+                if (response.status === 201) {
+                    return Promise.resolve("Сотрудник не посещал офис в заданную дату");
+                }
+
+                return Promise.resolve(response.data.toString());
+            },
+            (error) => {
+                cerr(error);
+                return Promise.reject("Ошибка в попытке получения времени входа сотрудника");
+            }
+        );
+    }
+
+    /**
+     * Возвращает число отработанных дней за выбранный период.
+     * @param date Месяц + Год.
+     */
+    @action public async getEmployeeWorkedDays(date: string) {
+        const year = date.slice(date.indexOf('-') + 1);
+        const month = date.slice(0, date.indexOf('-'));
+
+        const args = {"month": month, "year": year};
+        const employee = this.currentEmployee;
+        if (!employee) return Promise.reject("");
+
+        return await EmployeeService.getEmployeeWorkedDays(employee.id, args).then(
+            (response) => {
+                return Promise.resolve(response.data.toString());
+            },
+            (error) => {
+                cerr(`${error}`);
+                return Promise.reject("Ошибка в расчёте часов за выбранный период");
+            }
+        );
+    }
+
+    /**
+     * Возвращает число отработанных часов за выбранный период.
+     * @param datetimeStart Начало периода.
+     * @param datetimeEnd Конец периода.
+     */
+    @action public async getEmployeeWorkSpan(datetimeStart: string, datetimeEnd: string) {
+        const args = {"datetimeStart": datetimeStart, "datetimeEnd": datetimeEnd};
+        const employee = this.currentEmployee;
+        if (!employee) return Promise.reject("");
+
+        return await EmployeeService.getEmployeeWorkSpan(employee.id, args).then(
+            (response) => {
+                return Promise.resolve(response.data.toString());
+            },
+            (error) => {
+                cerr(`${error}`);
+                return Promise.reject("Ошибка в расчёте часов за выбранный период");
+            }
+        );
     }
 
     /**
@@ -236,7 +307,7 @@ class EmployeeStore {
             foundEmployee = this.employees.find(employee => employee.id === employeeId) ?? null;
         } else {
             await EmployeeService.getEmployeeById(employeeId).then((response: {data: EmployeeDbProps}) => {
-                cout(`${response.data}`);
+                cout(response.data);
                 foundEmployee = response.data;
             });
         }

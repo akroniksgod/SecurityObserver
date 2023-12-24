@@ -1,13 +1,14 @@
-import {Card, Empty, Form, Input, QRCode, Spin, DatePicker} from "antd";
+import {Card, Empty, Form, Input, QRCode, Spin} from "antd";
 import React from "react";
 import { inject, observer } from "mobx-react";
 import {BaseStoreInjector, ParseObjectProp } from "../../types/EmployeesTypes";
 import {useNavigate} from "react-router-dom";
 import ChartComponent from "./ChartComponent";
 import "../../styles/EmployeeComponent.css";
-import locale from 'antd/es/date-picker/locale/ru_RU';
 import 'dayjs/locale/ru';
-const { RangePicker } = DatePicker;
+import EmployeeWorkSpanComponent from "./FormItems/EmployeeWorkSpanComponent";
+import EmployeeWorkedDaysComponent from "./FormItems/EmployeeWorkedDaysComponent";
+import EmployeeEntranceTimeComponent from "./FormItems/EmployeeEntranceTimeComponent";
 
 interface FormMetadataProps {
     label: string;
@@ -28,6 +29,7 @@ const employeeMetadata: Readonly<FormMetadataProps[]> = [
     {label: "Посещаемость", property: "chart", key: "employee_chart"},
     {label: "Время работы за период", property: "timeCheck", key: "employee_timeCheck"},
     {label: "Количество дней за месяц", property: "daysCheck", key: "employee_daysCheck"},
+    {label: "Время входа в здание", property: "entranceTimeCheck", key: "employee_entranceTimeCheck"},
 ];
 
 /**
@@ -113,42 +115,37 @@ const CurrentEmployeeComponent: React.FC<CurrentEmployeeComponentProps> = inject
                                 //     </Form.Item>
                                 // );
                                 case "timeCheck": return (
-                                    <>
-                                        {getFormItem(
-                                            label,
-                                            metadata,
-                                            <RangePicker locale={locale} />
-                                        )}
-                                        <Form.Item label={""} key={`${metadata.key}_value`} style={{ maxWidth: 280, marginLeft: 220 }}>
-                                            <Input readOnly placeholder={"Отработанные часы за период"}/>
-                                        </Form.Item>
-                                    </>
+                                    <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
+                                        <EmployeeWorkSpanComponent/>
+                                    </Form.Item>
                                 );
                                 case "daysCheck": return (
-                                    <>
-                                        {getFormItem(
-                                            label,
-                                            metadata,
-                                            <DatePicker picker={"month"} locale={locale} style={{ width: 280 }}/>
-                                        )}
-                                        <Form.Item label={""} key={`${metadata.key}_value`} style={{ maxWidth: 280, marginLeft: 220 }}>
-                                            <Input readOnly placeholder={"Количество в выбранный месяц"}/>
-                                        </Form.Item>
-                                    </>
+                                    <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
+                                        <EmployeeWorkedDaysComponent/>
+                                    </Form.Item>
+                                );
+                                case "entranceTimeCheck": return (
+                                    <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
+                                        <EmployeeEntranceTimeComponent/>
+                                    </Form.Item>
                                 );
                                 default: {
                                     const val = parsableEmployee[metadata.property];
                                     return getFormItem(
                                         label,
                                         metadata,
-                                        <Input readOnly value={val}/>
+                                        <Input readOnly defaultValue={val}/>
                                     );
                                 }
                             }
                         })}
                     </Form>
                 </Spin>
-                : <Empty className={"empty-employee-data-style"} image={Empty.PRESENTED_IMAGE_SIMPLE}/>
+                : <Empty
+                    className={"empty-employee-data-style"}
+                    image={Empty.PRESENTED_IMAGE_SIMPLE}
+                    description={"Выберите сотрудника"}
+                />
             }
         </Card>
     );
