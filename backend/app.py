@@ -200,8 +200,6 @@ def get_first_entry_time_route(employee_id):
 
 
 if __name__ == '__main__':
-    camera_scanner.start_camera_scanner()
-
     # create_db()
     # create_migrations()
     app.run()

@@ -4,7 +4,7 @@ import time
 from gpiozero import LED
 
 
-async def start_camera_scanner():
+def start_camera_scanner():
     print("Запущен поток на распознавание QR кодов")
 
     # захват потока с камеры
@@ -21,12 +21,12 @@ async def start_camera_scanner():
         print("Распознанная строка: " + data)
 
         # логика проверки валидности QR кода
-        if len(data) > 0 and True:
+        if len(data) > 0 and qrcode_validation(data):
             print("Открываем турникет!")
             open_tourniquet()
 
         # отдыхаем одну секунду
-        await asyncio.sleep(1)
+        time.sleep(1)
 
 
 def open_tourniquet():
@@ -39,3 +39,9 @@ def open_tourniquet():
     time.sleep(5)
     led.off()
 
+
+def qrcode_validation(data):
+    return True
+
+
+start_camera_scanner()
