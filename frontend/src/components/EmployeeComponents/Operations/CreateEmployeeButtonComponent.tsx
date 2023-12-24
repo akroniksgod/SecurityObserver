@@ -45,8 +45,8 @@ export interface MetadataProps {
 
 /**
  * Режимы кнопок компонента.
- * @param CREATE Создание каталога.
- * @param EDIT Редактирование каталога.
+ * @param CREATE Создание сотрудника.
+ * @param EDIT Редактирование сотрудника.
  * @param CREATE_GOODS Создание товара.
  */
 export enum ButtonModes {
@@ -56,8 +56,8 @@ export enum ButtonModes {
 
 /**
  * Словарь с режимами.
- * @param CREATE Создание каталога.
- * @param EDIT Редактирование каталога.
+ * @param CREATE Создание сотрудника.
+ * @param EDIT Редактирование сотрудника.
  * @param CREATE_GOODS Создание товара.
  */
 const modes = new Map([
@@ -68,7 +68,7 @@ const modes = new Map([
 /**
  * Свойства компонента CreateBrochureButtonComponent.
  * @param mode Режим работы кнопок компонента.
- * @param goodsStore Хранилище каталогов.
+ * @param goodsStore Хранилище сотрудников.
  */
 interface CreateEmployeeButtonComponentProps extends BaseStoreInjector {
     mode: ButtonModes,
@@ -80,7 +80,7 @@ interface CreateEmployeeButtonComponentProps extends BaseStoreInjector {
  */
 const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps> = inject("employeeStore")(observer((props) => {
     /**
-     * Метаданные модалки редактирования каталога.
+     * Метаданные модалки редактирования сотрудника.
      */
     const editFormMetadata: Readonly<MetadataProps[]> = [
         { id: "employee_surname", name: "Фамилия", type: MetadataTypes.STR_FIELD, isRequired: true, min: 1, max: 30, helpText: "Значение по длине не более 30 символлов"},
@@ -100,7 +100,7 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
     ];
 
     /**
-     * Метаданные создания каталога.
+     * Метаданные создания сотрудника.
      */
     const createFormMetadata: Readonly<MetadataProps[]> = [
         ...editFormMetadata,
@@ -130,7 +130,7 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
         switch (formItem.type) {
             case MetadataTypes.NMBR_FIELD: return (<Input type={"number"}/>);
             case MetadataTypes.STR_FIELD: return (<Input/>);
-            case MetadataTypes.DATE_FIELD: return (<DatePicker format={"DD.MM.YYYY"}/>);
+            case MetadataTypes.DATE_FIELD: return (<DatePicker style={{width: "100%"}} format={"DD.MM.YYYY"}/>);
             default: return null;
         }
     };
@@ -191,7 +191,7 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
     };
 
     /**
-     * Обработчик создания/редактирования каталога.
+     * Обработчик создания/редактирования сотрудника.
      * @param values Значения полей.
      */
     const handleDbAction = (values: any) => {
@@ -263,7 +263,7 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
     };
 
     /**
-     * Заполняет поля каталога.
+     * Заполняет поля сотрудника.
      */
     const fillBrochureFields = () => {
         if (currentEmployee === null) return;
@@ -305,7 +305,7 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
         let title = "";
         switch (props.mode) {
             case ButtonModes.CREATE:
-            case ButtonModes.EDIT: title = "Необходимо выбрать каталог"; break;
+            case ButtonModes.EDIT: title = "Необходимо выбрать сотрудника"; break;
             default: break;
         }
         return {title: title};
