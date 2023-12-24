@@ -1,5 +1,7 @@
 from dataclasses import dataclass
 
+from flask import Flask
+from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import Integer, String, Column, DateTime, Boolean, PrimaryKeyConstraint, \
     UniqueConstraint, ForeignKey, create_engine
 from sqlalchemy.ext.declarative import declarative_base
@@ -10,8 +12,8 @@ from sqlalchemy import inspect
 from utils import to_camel_case
 
 engine = create_engine(config.DB_CONNECTION_STR)
-
 Base = declarative_base()
+
 
 
 class BaseEntity(Base):

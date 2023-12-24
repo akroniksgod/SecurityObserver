@@ -1,16 +1,19 @@
 import os
 from datetime import timedelta, datetime
 from flask import Flask, jsonify, request, send_from_directory
+from flask_sqlalchemy import SQLAlchemy
+from gevent import event
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 import logging
 import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
-from Models import Employee, create_db
-from utils import to_snake_case
+from Models import Employee, create_db, DbQueriesLogger, EventCode
+from utils import to_snake_case, log_db_query
 from migrations import create_migrations
 from flask_cors import CORS
+from sqlalchemy import event
 
 # Импорт приложения Карелова Вадима Андреевича
 # import second_app
@@ -88,6 +91,15 @@ def create_employee():
         )
         session.add(new_employee)
         session.commit()
+        # Логирование запроса
+        log_db_query(
+            session,
+            table_name='employee',
+            is_admin=False,  # Пример, если запрос выполняется не администратором
+            property_name='create_employee',
+            old_value='',
+            new_value=f'Surname: {new_employee.surname}, Name: {new_employee.name}'
+        )
         return jsonify(new_employee.id), 200
 
     except Exception as e:
@@ -196,6 +208,35 @@ def get_first_entry_time_route(employee_id):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+# Функция для логирования запросов к базе данных
+def log_db_queries(sender, sql, params, context, executemany):
+    if context and "query" in context.info:
+        session = Session(bind=engine)
+        query_info = context.info["query"]
+
+        # Логирование в таблицу db_queries_logger
+        db_log_entry = DbQueriesLogger(
+            date=datetime.now(),
+            table_name=query_info["table"],
+            is_admin=query_info.get("is_admin", False),
+            property_name=query_info.get("property_name", ""),
+            old_value=query_info.get("old_value", ""),
+            new_value=query_info.get("new_value", "")
+        )
+
+        session.add(db_log_entry)
+        session.commit()
+
+        # Логирование в файл txt
+        with open("db_queries_log.txt", "a") as log_file:
+            log_file.write(f"{datetime.now()} - {sql} - {params}\n")
+
+# Добавление обработчика событий для логирования запросов
+event.listen(engine, "before_cursor_execute", log_db_queries)
+
+
 
 
 if __name__ == '__main__':
