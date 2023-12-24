@@ -14,7 +14,7 @@ from migrations import create_migrations
 from flask_cors import CORS
 
 # Импорт приложения для сканирования qr кода
-import camera_scanner
+#import camera_scanner
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
