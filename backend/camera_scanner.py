@@ -1,6 +1,8 @@
 import asyncio
 import cv2
 import time
+
+import requests
 from gpiozero import LED
 
 
@@ -41,7 +43,19 @@ def open_tourniquet():
 
 
 def qrcode_validation(data):
-    return True
+    return send_request(data)
+
+
+def send_request(input_string):
+    url = 'http://localhost'
+    params = {'qrcode_string': input_string}
+    response = requests.get(url, params=params)
+
+    if response.status_code == 200:
+        result = response.json()
+        return result
+    else:
+        return False
 
 
 start_camera_scanner()
