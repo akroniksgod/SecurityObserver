@@ -3,13 +3,19 @@ import React from "react";
 import { inject, observer } from "mobx-react";
 import {BaseStoreInjector, ParseObjectProp } from "../../types/EmployeesTypes";
 import {useNavigate} from "react-router-dom";
-import ChartComponent from "./ChartComponent";
 import "../../styles/EmployeeComponent.css";
+import "../../styles/CurrentEmployeeComponent.css";
 import 'dayjs/locale/ru';
 import EmployeeWorkSpanComponent from "./FormItems/EmployeeWorkSpanComponent";
 import EmployeeWorkedDaysComponent from "./FormItems/EmployeeWorkedDaysComponent";
 import EmployeeEntranceTimeComponent from "./FormItems/EmployeeEntranceTimeComponent";
 
+/**
+ * Свойства метеданных.
+ * @param label Надпись.
+ * @param property Свойство.
+ * @param key Ключ.
+ */
 interface FormMetadataProps {
     label: string;
     property: string;
@@ -26,7 +32,6 @@ const employeeMetadata: Readonly<FormMetadataProps[]> = [
     {label: "Должность", property: "position", key: "employee_position"},
     {label: "Телефон", property: "phoneNumber", key: "employee_phoneNumber"},
     {label: "QR", property: "QR", key: "employee_QR"},
-    {label: "Посещаемость", property: "chart", key: "employee_chart"},
     {label: "Время работы за период", property: "timeCheck", key: "employee_timeCheck"},
     {label: "Количество дней за месяц", property: "daysCheck", key: "employee_daysCheck"},
     {label: "Время входа в здание", property: "entranceTimeCheck", key: "employee_entranceTimeCheck"},
@@ -76,14 +81,14 @@ const CurrentEmployeeComponent: React.FC<CurrentEmployeeComponentProps> = inject
         children: React.JSX.Element | null
     ) => {
         return (
-            <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
+            <Form.Item label={label} key={metadata.key} className={"form-item-style"}>
                 {children}
             </Form.Item>
         );
     };
 
     return (
-        <Card title={"Информация о сотруднике"} style={{margin: "10px 20px 0 70px"}} bodyStyle={{height: "calc(100vh - 170px)"}}>
+        <Card title={"Информация о сотруднике"} className={"card-style"}>
             {employee !== null ?
                 <Spin
                     size={"large"}
@@ -96,8 +101,6 @@ const CurrentEmployeeComponent: React.FC<CurrentEmployeeComponentProps> = inject
                         colon={false}
                         labelAlign={"left"}
                         labelCol={{ flex: '220px' }}
-                        // labelWrap
-                        // wrapperCol={{ flex: 5 }}
                     >
                         {employeeMetadata.map(metadata => {
                             const label = (<div className={"employee-form-item-label-style"}>{metadata.label}</div>);
@@ -108,24 +111,18 @@ const CurrentEmployeeComponent: React.FC<CurrentEmployeeComponentProps> = inject
                                     metadata,
                                     <QRCode value={`${parsableEmployee["fullName"]} ${parsableEmployee["id"]}`} />
                                 );
-                                case "chart": return null;
-                                // return (
-                                //     <Form.Item label={""} key={metadata.key} style={{ maxWidth: 500 }}>
-                                //         <ChartComponent/>
-                                //     </Form.Item>
-                                // );
                                 case "timeCheck": return (
-                                    <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
+                                    <Form.Item label={label} key={metadata.key} className={"form-item-style"}>
                                         <EmployeeWorkSpanComponent/>
                                     </Form.Item>
                                 );
                                 case "daysCheck": return (
-                                    <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
+                                    <Form.Item label={label} key={metadata.key} className={"form-item-style"}>
                                         <EmployeeWorkedDaysComponent/>
                                     </Form.Item>
                                 );
                                 case "entranceTimeCheck": return (
-                                    <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
+                                    <Form.Item label={label} key={metadata.key} className={"form-item-style"}>
                                         <EmployeeEntranceTimeComponent/>
                                     </Form.Item>
                                 );
