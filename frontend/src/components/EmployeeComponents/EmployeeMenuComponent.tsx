@@ -1,5 +1,5 @@
 import {Empty, Menu, MenuProps, Spin } from "antd";
-import { useEffect, useState } from "react";
+import React, { useEffect, useState } from "react";
 import { inject, observer } from "mobx-react";
 import "../../styles/EmployeeMenuComponent.css";
 import { BaseStoreInjector } from "../../types/EmployeesTypes";
@@ -72,7 +72,6 @@ const EmployeeMenuComponent: React.FC<EmployeeMenuComponentProps> = inject("empl
      */
     const onSelectEmployee = (event: {key: string}): void => {
         const id = getEmployeeId(event);
-        window.history.pushState({id: id}, "", `/employees/${id}`);
         props.employeeStore?.onEmployeeClick(id !== "undefined" ? parseInt(id) : -1);
     };
 

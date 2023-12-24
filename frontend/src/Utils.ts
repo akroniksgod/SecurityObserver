@@ -40,7 +40,7 @@ export const sorter = (a: any, b: any, key: string) => {
  * Лог в стандартный поток.
  * @param message Текст лога.
  */
-export const cerr = (message: string) => {
+export const cerr = (message: any) => {
     IS_DEBUG && console.error(message);
 };
 
@@ -48,7 +48,7 @@ export const cerr = (message: string) => {
  * Лог в поток ошибок.
  * @param message Текст лога.
  */
-export const cout = (message: string) => {
+export const cout = (message: any) => {
     IS_DEBUG && console.log(message);
 };
 

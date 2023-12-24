@@ -9,6 +9,7 @@ import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
 from Models import Employee, create_db
+from utils import to_snake_case
 from migrations import create_migrations
 from flask_cors import CORS
 
@@ -50,7 +51,7 @@ def welcome_route():
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployees', methods=['GET'])
 def get_employees():
     session = Session(bind=engine)
-    query = session.query(Employee).all()
+    query = session.query(Employee).order_by(Employee.id.desc()).all()
     employees = []
     for employee in query:
         employees.append(employee.to_dict())
@@ -76,44 +77,43 @@ def get_employee(id):
 def create_employee():
     try:
         session = Session(bind=engine)
-        data = request.json
+        data: dict = request.get_json()
         new_employee = Employee(
-            id=data.get('id'),
             surname=data.get('surname'),
             name=data.get('name'),
             patronymic=data.get('patronymic'),
-            birth_date=data.get('birthdate'),
+            birth_date=data.get('birthDate'),
             address=data.get('address'),
             position=data.get('position'),
-            phoneNumber=data.get('phoneNumber')
+            phone_number=data.get('phoneNumber')
         )
         session.add(new_employee)
         session.commit()
-        return jsonify({'message': 'Employee added successfully!'}), 201
+        return jsonify(new_employee.id), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
-@app.route(f'{config.BASE_BACKEND_ROUTE}/deleteEmployee/id=<int:employee_id>', methods=['DELETE'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/deleteEmployee/id=<int:employee_id>', methods=['GET'])
 def delete_employee(employee_id):
     try:
         session = Session(bind=engine)
         employee = session.query(Employee).filter_by(id=employee_id).first()
 
         if not employee:
-            return jsonify({'error': 'Employee not found'}), 404
+            return jsonify('Сотрудник не найден в базе данных'), 404
 
         session.delete(employee)
         session.commit()
 
-        return jsonify({'message': 'Employee deleted successfully!'}), 200
+        return jsonify("ok"), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
 
 
-@app.route(f'{config.BASE_BACKEND_ROUTE}/updateEmployee/id=<int:employee_id>', methods=['PUT'])
+@app.route(f'{config.BASE_BACKEND_ROUTE}/updateEmployee/id=<int:employee_id>', methods=['POST'])
 def update_employee(employee_id):
     try:
         session = Session(bind=engine)
@@ -121,12 +121,12 @@ def update_employee(employee_id):
         if not employee:
             return jsonify({'error': 'Employee not found'}), 404
 
-        update_data = request.json
+        update_data = request.get_json()
         for key, value in update_data.items():
-            setattr(employee, key, value)
+            setattr(employee, to_snake_case(key), value)
 
         session.commit()
-        return jsonify({'message': f'Employee {employee_id} updated successfully!'}), 200
+        return jsonify(employee.id), 200
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -135,7 +135,7 @@ def update_employee(employee_id):
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeWorkedDays/id=<int:employee_id>', methods=['POST'])
 def calculate_work_days_route(employee_id):
     try:
-        data = request.json
+        data = request.get_json()
         month = data.get('month')
         year = data.get('year')
 
@@ -145,9 +145,9 @@ def calculate_work_days_route(employee_id):
         work_days = query_data_calculation.calculate_work_days(int(employee_id), int(month), int(year))
 
         if work_days is not None:
-            return jsonify({'work_days': work_days}), 200
-        else:
-            return jsonify({'error': 'Error calculating work days'}), 500
+            return jsonify(work_days), 200
+
+        return jsonify({'error': 'Error calculating work days'}), 500
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -156,22 +156,22 @@ def calculate_work_days_route(employee_id):
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeWorkSpan/id=<int:employee_id>', methods=['POST'])
 def calculate_total_work_time_route(employee_id):
     try:
-        data = request.json
+        data = request.get_json()
         start_date_str = data.get('datetimeStart')
         end_date_str = data.get('datetimeEnd')
 
         if not all([employee_id, start_date_str, end_date_str]):
-            return jsonify({'error': 'Missing required parameters'}), 400
+            return jsonify({'error': 'Нет обходимых параметров'}), 400
 
-        start_date = datetime.strptime(start_date_str, '%Y-%m-%d')
-        end_date = datetime.strptime(end_date_str, '%Y-%m-%d')
+        start_date = datetime.strptime(start_date_str, '%d-%m-%Y')
+        end_date = datetime.strptime(end_date_str, '%d-%m-%Y')
 
         total_work_time = query_data_calculation.calculate_total_work_time(int(employee_id), start_date, end_date)
-
+        print(total_work_time)
         if total_work_time is not None:
-            return jsonify({'total_work_time': str(total_work_time)}), 200
+            return jsonify(str(total_work_time)), 200
         else:
-            return jsonify({'error': 'Error calculating total work time'}), 500
+            return jsonify({'error': 'Ошибка расчёта времени'}), 500
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
@@ -180,20 +180,20 @@ def calculate_total_work_time_route(employee_id):
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployeeEntranceTime/id=<int:employee_id>', methods=['POST'])
 def get_first_entry_time_route(employee_id):
     try:
-        data = request.json
-        target_date_str = data.get('targetDate')
+        data = request.get_json()
+        target_date_str = data.get('date')
 
         if not all([employee_id, target_date_str]):
             return jsonify({'error': 'Missing required parameters'}), 400
 
-        target_date = datetime.strptime(target_date_str, '%Y-%m-%d')
+        target_date = datetime.strptime(target_date_str, '%d-%m-%Y')
 
         entry_time = query_data_calculation.get_first_entry_time(int(employee_id), target_date)
 
         if entry_time is not None:
-            return jsonify({'entry_time': str(entry_time)}), 200
+            return jsonify(str(entry_time)), 200
         else:
-            return jsonify({'error': 'No entry time found for the specified date'}), 404
+            return jsonify("Время входа не найдено"), 201
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500

@@ -11,7 +11,7 @@ type NotificationType = 'success' | 'info' | 'warning' | 'error';
  * @param message Текст сообщения.
  * @param messageType Тип иконки.
  */
-export const openNotification = (title: string, message: string, messageType: NotificationType,) => {
+export const openNotification = (title: string, message: string, messageType: NotificationType) => {
     notification[messageType]({
         message: title,
         description: message,
