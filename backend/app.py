@@ -1,27 +1,98 @@
 import os
+from copy import copy
 from datetime import timedelta, datetime
+from logging.handlers import RotatingFileHandler, TimedRotatingFileHandler
+
 from flask import Flask, jsonify, request, send_from_directory
+from jedi import settings
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
 import logging
 import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
-from Models import Employee, create_db
+from Models import Employee, create_db, DbQueriesLogger
 from utils import to_snake_case
 from migrations import create_migrations
 from flask_cors import CORS
+from sqlalchemy import event
+from sqlalchemy.engine import Engine
 
 # Импорт приложения Карелова Вадима Андреевича
 # import second_app
 
-logging.basicConfig()
-logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+# logging.basicConfig(format='%(asctime)s %(levelname)s in %(module)s: %(message)s').setLevel(logging.DEBUG)
+# logger = logging.getLogger(config.DB_ADAPTER)
+
 app = Flask(__name__, static_folder='../frontend/build')
 CORS(app)
-db_config = config.DB_CONNECTION_STR
-engine = create_engine(config.DB_CONNECTION_STR, echo=True)
+engine = create_engine(config.DB_CONNECTION_STR, echo=False)
 Base = declarative_base()
+
+
+# Функция-обработчик для вывода информации о SQL-запросах
+# def log_sql(conn, clauseelement, multiparams, params, execution_options, _):
+#     # logger.info("Executing SQL: %s", clauseelement)
+#     logger.info("multiparams: %s", multiparams)
+#     logger.info("Input parameters: %s", params)
+#     logger.info("execution_options: %s", execution_options)
+#     logger.info("_: %s", _)
+#
+#
+# # Регистрируем обработчик для всех SQL-запросов
+# event.listen(engine, 'before_cursor_execute', log_sql)
+
+
+# logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
+# logging.getLogger('sqlalchemy.dialects').setLevel(logging.ERROR)
+# logging.getLogger('sqlalchemy.pool').setLevel(logging.ERROR)
+# logging.getLogger('sqlalchemy.orm').setLevel(logging.ERROR)
+#
+# api_handler = TimedRotatingFileHandler(
+#         "app.log",
+#         when='midnight',
+#         backupCount=10
+#     )
+# api_handler.setLevel(logging.INFO)
+#
+# for handler in copy(logging.getLogger().handlers):
+#     logging.getLogger().removeHandler(handler)
+#     handler.close()  # clean up used file handles
+#
+# logging.getLogger().addHandler(api_handler)
+#
+# for handler in copy(logging.getLogger('werkzeug').handlers):
+#     logging.getLogger('werkzeug').removeHandler(handler)
+#     handler.close()  # clean up used file handles
+#
+# logging.getLogger('werkzeug').addHandler(api_handler)
+
+def init_logger():
+    # Создаем форматтер логов
+    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+
+    # Создание логгера
+    logger = logging.getLogger('sqlalchemy.engine')
+    logger.setLevel(logging.DEBUG)
+
+    # Создание обработчика для вывода в консоль
+    console_handler = logging.StreamHandler()
+    console_handler.setLevel(logging.INFO)
+    console_handler.setFormatter(formatter)
+    logger.addHandler(console_handler)
+
+    # Создание обработчика для записи в файл
+    file_handler = logging.FileHandler('sqlalchemy.log')
+    file_handler.setLevel(logging.INFO)
+    file_handler.setFormatter(formatter)
+    logger.addHandler(file_handler)
+
+    for handler in copy(logging.getLogger('werkzeug').handlers):
+        logging.getLogger('werkzeug').removeHandler(handler)
+        handler.close()  # clean up used file handles
+
+    logging.getLogger('werkzeug').addHandler(console_handler)
+    logging.getLogger('werkzeug').addHandler(file_handler)
 
 
 @app.route('/', defaults={'path': ''})
@@ -54,7 +125,6 @@ def get_employees():
     employees = []
     for employee in query:
         employees.append(employee.to_dict())
-
     return jsonify(employees)
 
 
@@ -88,6 +158,7 @@ def create_employee():
         )
         session.add(new_employee)
         session.commit()
+
         return jsonify(new_employee.id), 200
 
     except Exception as e:
@@ -201,6 +272,7 @@ def get_first_entry_time_route(employee_id):
 if __name__ == '__main__':
     # create_db()
     # create_migrations()
+    init_logger()
     app.run()
 
     # Запуск Flask приложения
