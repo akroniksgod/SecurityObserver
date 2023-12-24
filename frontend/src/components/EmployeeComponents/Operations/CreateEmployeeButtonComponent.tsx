@@ -86,7 +86,7 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
         { id: "employee_surname", name: "Фамилия", type: MetadataTypes.STR_FIELD, isRequired: true, min: 1, max: 30, helpText: "Значение по длине не более 30 символлов"},
         { id: "employee_name", name: "Имя", type: MetadataTypes.STR_FIELD, isRequired: true, min: 1, max: 30, helpText: "Значение по длине не более 30 символлов"},
         { id: "employee_patronymic", name: "Отчество", type: MetadataTypes.STR_FIELD, isRequired: true, min: 1, max: 30, helpText: "Значение по длине не более 30 символлов"},
-        { id: "employee_birthDate", name: "Дата рождения", type: MetadataTypes.DATE_FIELD, isRequired: true, defaultValue: new Date().toLocaleString()},
+        { id: "employee_birthDate", name: "Дата рождения", type: MetadataTypes.DATE_FIELD, isRequired: true, defaultValue: new Date().toISOString()},
         { id: "employee_address", name: "Адрес", type: MetadataTypes.STR_FIELD, isRequired: true, min: 1, max: 50, helpText: "Значение по длине не более 50 символлов"},
         { id: "employee_position", name: "Должность", type: MetadataTypes.STR_FIELD, isRequired: true, min: 1, max: 30, helpText: "Значение по длине не более 30 символлов"},
         { id: "employee_phoneNumber", name: "Телефон", type: MetadataTypes.STR_FIELD, isRequired: true, min: 11, max: 15, helpText: "Значение по длине не более 12 символлов", pattern: "^[\\+]?[(]?[0-9]{3}[)]?[-\\s\\.]?[0-9]{3}[-\\s\\.]?[0-9]{5}$"},
@@ -131,7 +131,6 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
             case MetadataTypes.NMBR_FIELD: return (<Input type={"number"}/>);
             case MetadataTypes.STR_FIELD: return (<Input/>);
             case MetadataTypes.DATE_FIELD: return (<DatePicker format={"DD.MM.YYYY"}/>);
-            // case MetadataTypes.TBL_FIELD: return (<GoodsTableComponent/>);
             default: return null;
         }
     };
@@ -296,7 +295,6 @@ const CreateEmployeeButtonComponent: React.FC<CreateEmployeeButtonComponentProps
      * Используется в качестве callback функции в родительском компоненте.
      */
     const onClick = () => {
-        // props.mode === ButtonModes.CREATE && props.employeeStore?.updateGoodsList();
         (props.mode === ButtonModes.EDIT) && fillFieldsOnEdit();
     };
 

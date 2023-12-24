@@ -5,9 +5,11 @@
 
 .main-window-layout {
   height: auto;
+  min-width: var(--minWidth);
 }
 
 .main-window-header {
   height: 52px;
+  min-width: var(--minWidth);
   background-color: rgb(200, 250, 230);
 }
