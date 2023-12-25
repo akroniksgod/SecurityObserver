@@ -30,8 +30,8 @@
 
 - СУБД: PostgreSQL
 - Веб-приложение: React.js
-- Backend-приложение: Asp .NET - связующее звено между БД. Принимает запросы от Raspeberry PI и Web-приложения
-- Приложение Rasberry PI (Unix)
+- Backend-приложение: Flask - связующее звено между БД. Принимает запросы от Raspeberry PI и Web-приложения
+- Приложение Rasberry: Flask 
 
 ### Требования к логгированию:
 
