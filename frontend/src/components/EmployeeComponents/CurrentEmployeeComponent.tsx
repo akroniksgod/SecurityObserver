@@ -2,14 +2,19 @@ import {Card, Empty, Form, Input, QRCode, Spin} from "antd";
 import React from "react";
 import { inject, observer } from "mobx-react";
 import {BaseStoreInjector, ParseObjectProp } from "../../types/EmployeesTypes";
-import {useNavigate} from "react-router-dom";
-import ChartComponent from "./ChartComponent";
 import "../../styles/EmployeeComponent.css";
+import "../../styles/CurrentEmployeeComponent.css";
 import 'dayjs/locale/ru';
 import EmployeeWorkSpanComponent from "./FormItems/EmployeeWorkSpanComponent";
 import EmployeeWorkedDaysComponent from "./FormItems/EmployeeWorkedDaysComponent";
 import EmployeeEntranceTimeComponent from "./FormItems/EmployeeEntranceTimeComponent";
 
+/**
+ * Свойства метеданных.
+ * @param label Надпись.
+ * @param property Свойство.
+ * @param key Ключ.
+ */
 interface FormMetadataProps {
     label: string;
     property: string;
@@ -26,7 +31,6 @@ const employeeMetadata: Readonly<FormMetadataProps[]> = [
     {label: "Должность", property: "position", key: "employee_position"},
     {label: "Телефон", property: "phoneNumber", key: "employee_phoneNumber"},
     {label: "QR", property: "QR", key: "employee_QR"},
-    {label: "Посещаемость", property: "chart", key: "employee_chart"},
     {label: "Время работы за период", property: "timeCheck", key: "employee_timeCheck"},
     {label: "Количество дней за месяц", property: "daysCheck", key: "employee_daysCheck"},
     {label: "Время входа в здание", property: "entranceTimeCheck", key: "employee_entranceTimeCheck"},
@@ -53,37 +57,33 @@ const CurrentEmployeeComponent: React.FC<CurrentEmployeeComponentProps> = inject
     const parsableEmployee: ParseObjectProp = employee ?? {};
 
     /**
-     * Переключатель пути в адресной строке браузера.
-     */
-    const navigate = useNavigate();
-
-    /**
-     * Перенаправляет на компонент со списком сотрудников.
-     */
-    const redirectBack = () => {
-        navigate("/employees");
-    };
-
-    /**
      * Возвращает дочерний элемент формы.
-     * @param label Надпись элемента.
      * @param metadata Некоторые метаданные по элементу.
-     * @param children Дочерние компоненты.
      */
-    const getFormItem = (
-        label: React.JSX.Element | string,
-        metadata: FormMetadataProps,
-        children: React.JSX.Element | null
-    ) => {
+    const getFormItem = (metadata: FormMetadataProps) => {
+        let component;
+        switch (metadata.property) {
+            case "QR": component = (<QRCode value={`${parsableEmployee["fullName"]} ${parsableEmployee["id"]}`}/>); break;
+            case "timeCheck": component = (<EmployeeWorkSpanComponent/>); break;
+            case "daysCheck": component = (<EmployeeWorkedDaysComponent/>); break;
+            case "entranceTimeCheck": component = (<EmployeeEntranceTimeComponent/>); break;
+            default: {
+                const val = parsableEmployee[metadata.property];
+                component = (<Input readOnly defaultValue={val}/>);
+                break;
+            }
+        }
+
+        const label = (<div className={"employee-form-item-label-style"}>{metadata.label}</div>);
         return (
-            <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
-                {children}
+            <Form.Item label={label} key={metadata.key} className={"form-item-style"}>
+                {component}
             </Form.Item>
         );
     };
 
     return (
-        <Card title={"Информация о сотруднике"} style={{margin: "10px 20px 0 70px"}} bodyStyle={{height: "calc(100vh - 170px)"}}>
+        <Card title={"Информация о сотруднике"} className={"card-style"}>
             {employee !== null ?
                 <Spin
                     size={"large"}
@@ -96,49 +96,8 @@ const CurrentEmployeeComponent: React.FC<CurrentEmployeeComponentProps> = inject
                         colon={false}
                         labelAlign={"left"}
                         labelCol={{ flex: '220px' }}
-                        // labelWrap
-                        // wrapperCol={{ flex: 5 }}
                     >
-                        {employeeMetadata.map(metadata => {
-                            const label = (<div className={"employee-form-item-label-style"}>{metadata.label}</div>);
-
-                            switch (metadata.property) {
-                                case "QR": return getFormItem(
-                                    label,
-                                    metadata,
-                                    <QRCode value={`${parsableEmployee["fullName"]} ${parsableEmployee["id"]}`} />
-                                );
-                                case "chart": return null;
-                                // return (
-                                //     <Form.Item label={""} key={metadata.key} style={{ maxWidth: 500 }}>
-                                //         <ChartComponent/>
-                                //     </Form.Item>
-                                // );
-                                case "timeCheck": return (
-                                    <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
-                                        <EmployeeWorkSpanComponent/>
-                                    </Form.Item>
-                                );
-                                case "daysCheck": return (
-                                    <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
-                                        <EmployeeWorkedDaysComponent/>
-                                    </Form.Item>
-                                );
-                                case "entranceTimeCheck": return (
-                                    <Form.Item label={label} key={metadata.key} style={{ maxWidth: 500 }}>
-                                        <EmployeeEntranceTimeComponent/>
-                                    </Form.Item>
-                                );
-                                default: {
-                                    const val = parsableEmployee[metadata.property];
-                                    return getFormItem(
-                                        label,
-                                        metadata,
-                                        <Input readOnly defaultValue={val}/>
-                                    );
-                                }
-                            }
-                        })}
+                        {employeeMetadata.map(getFormItem)}
                     </Form>
                 </Spin>
                 : <Empty
