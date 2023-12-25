@@ -1,4 +1,5 @@
 import os
+import threading
 from datetime import timedelta, datetime
 from flask import Flask, jsonify, request, send_from_directory
 from sqlalchemy import create_engine
@@ -12,8 +13,8 @@ from utils import to_snake_case
 from migrations import create_migrations
 from flask_cors import CORS
 
-# Импорт приложения Карелова Вадима Андреевича
-# import second_app
+# Импорт приложения для сканирования qr кода
+#import camera_scanner
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
@@ -207,6 +208,6 @@ if __name__ == '__main__':
     # app_thread = threading.Thread(target=app.run, kwargs={'debug': True})
     # app_thread.start()
 
-    # Запуск приложения Карелова Вадима Андреевича
-    # second_app_thread = threading.Thread(target=second_app.second_app_function)
+    # Запуск приложения сканера QR кодов
+    # second_app_thread = threading.Thread(target=camera_scanner.start_camera_scanner(), daemon=True)
     # second_app_thread.start()
