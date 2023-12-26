@@ -10,8 +10,8 @@ import logging
 import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
-from Models import Employee, create_db, DbQueriesLogger, EventCode
-from utils import to_snake_case, log_db_query
+from Models import Employee, create_db, DbQueriesLogger, EventCode, EntranceCode
+from utils import to_snake_case
 from migrations import create_migrations
 from flask_cors import CORS
 from sqlalchemy import event
@@ -92,15 +92,6 @@ def create_employee():
         )
         session.add(new_employee)
         session.commit()
-        # Логирование запроса
-        log_db_query(
-            session,
-            table_name='employee',
-            is_admin=False,  # Пример, если запрос выполняется не администратором
-            property_name='create_employee',
-            old_value='',
-            new_value=f'Surname: {new_employee.surname}, Name: {new_employee.name}'
-        )
         return jsonify(new_employee.id), 200
 
     except Exception as e:
@@ -211,6 +202,29 @@ def get_first_entry_time_route(employee_id):
         return jsonify({'error': str(e)}), 500
 
 
+@app.route(f'{config.BASE_BACKEND_ROUTE}/checkQRCode/id=<int:employee_id>', methods=['POST'])
+def check_QR_code(employee_id):
+    try:
+        data = request.get_json()
+        qrcode_string = data.get('qrcode_string')
+
+        if not all([employee_id, qrcode_string]):
+            return jsonify({'error': 'Missing required parameters'}), 400
+
+        session = Session(bind=engine)
+
+        # Проверка наличия кода в таблице EntranceCode
+        entrance_code = session.query(EntranceCode).filter_by(employee_id=employee_id, code=qrcode_string).first()
+
+        if entrance_code:
+            return jsonify({'valid': True}), 200
+        else:
+            return jsonify({'valid': False}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
 # Функция для логирования запросов к базе данных
 def log_db_queries(sender, sql, params, context, executemany):
     if context and "query" in context.info:
@@ -235,7 +249,7 @@ def log_db_queries(sender, sql, params, context, executemany):
             log_file.write(f"{datetime.now()} - {sql} - {params}\n")
 
 # Добавление обработчика событий для логирования запросов
-event.listen(engine, "before_cursor_execute", log_db_queries)
+# event.listen(engine, "before_cursor_execute", log_db_queries)
 
 
 
