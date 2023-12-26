@@ -252,17 +252,17 @@ def get_first_entry_time_route(employee_id):
         return jsonify({'error': str(e)}), 500
 
 
-@app.route(f'{config.BASE_BACKEND_ROUTE}/checkQRCode/id=<int:employee_id>', methods=['POST'])
-def check_QR_code(employee_id):
+@app.route(f'{config.BASE_BACKEND_ROUTE}/checkQRCode', methods=['POST'])
+def check_QR_code():
     try:
         data = request.get_json()
         qrcode_string = data.get('qrcode_string')
 
-        if not all([employee_id, qrcode_string]):
+        if not all([qrcode_string]):
             return jsonify({'error': 'Missing required parameters'}), 400
 
         # Проверка наличия кода в таблице EntranceCode
-        entrance_code = session.query(EntranceCode).filter_by(employee_id=employee_id, code=qrcode_string).first()
+        entrance_code = session.query(EntranceCode).filter_by(code=qrcode_string).first()
 
         if entrance_code:
             return jsonify({'valid': True}), 200
