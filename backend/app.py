@@ -1,20 +1,25 @@
 import os
 import threading
 from datetime import timedelta, datetime
+
+from cv2.gapi.ie import params
 from flask import Flask, jsonify, request, send_from_directory
-from sqlalchemy import create_engine
+from flask_sqlalchemy import SQLAlchemy
+from psycopg2 import sql
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import Session
-import logging
 import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
-from Models import Employee, create_db
+from Models import Employee, create_db, DbQueriesLogger, EventCode, EntranceCode, create_session
 from utils import to_snake_case
 from migrations import create_migrations
 from flask_cors import CORS
-
+from sqlalchemy import event
+import logging
 # Импорт приложения для сканирования qr кода
 #import camera_scanner
+
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
@@ -23,7 +28,19 @@ CORS(app)
 db_config = config.DB_CONNECTION_STR
 engine = create_engine(config.DB_CONNECTION_STR, echo=True)
 Base = declarative_base()
+session = create_session(engine)
 
+# Инициализация логгера
+logger = logging.getLogger('app_logger')
+logger.setLevel(logging.INFO)
+
+# Создание форматтера для логгера
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+# Создание обработчика для записи в файл
+file_handler = logging.FileHandler('app_log.txt')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -50,7 +67,6 @@ def welcome_route():
 
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployees', methods=['GET'])
 def get_employees():
-    session = Session(bind=engine)
     query = session.query(Employee).order_by(Employee.id.desc()).all()
     employees = []
     for employee in query:
@@ -62,7 +78,6 @@ def get_employees():
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployee/id=<int:id>', methods=['GET'])
 def get_employee(id):
     try:
-        session = Session(bind=engine)
         employee = session.query(Employee).filter_by(id=id).first()
         if not employee:
             return jsonify({'error': 'Employee not found'}), 404
@@ -76,7 +91,6 @@ def get_employee(id):
 @app.route(f'{config.BASE_BACKEND_ROUTE}/createEmployee', methods=['POST'])
 def create_employee():
     try:
-        session = Session(bind=engine)
         data: dict = request.get_json()
         new_employee = Employee(
             surname=data.get('surname'),
@@ -88,7 +102,16 @@ def create_employee():
             phone_number=data.get('phoneNumber')
         )
         session.add(new_employee)
+        log_query_to_db(
+            session,
+            table_name='employee',
+            is_admin=True,
+            property_name='new_employee',
+            old_value='',
+            new_value=f'Surname: {new_employee.surname}, Name: {new_employee.name}, Position: {new_employee.position}'
+        )
         session.commit()
+
         return jsonify(new_employee.id), 200
 
     except Exception as e:
@@ -98,13 +121,20 @@ def create_employee():
 @app.route(f'{config.BASE_BACKEND_ROUTE}/deleteEmployee/id=<int:employee_id>', methods=['GET'])
 def delete_employee(employee_id):
     try:
-        session = Session(bind=engine)
         employee = session.query(Employee).filter_by(id=employee_id).first()
 
         if not employee:
             return jsonify('Сотрудник не найден в базе данных'), 404
 
         session.delete(employee)
+        log_query_to_db(
+            session,
+            table_name='employee',
+            is_admin=True,
+            property_name='del_employee',
+            new_value='',
+            old_value=f'Surname: {employee.surname}, Name: {employee.name}, Position: {employee.position}'
+        )
         session.commit()
 
         return jsonify("ok"), 200
@@ -116,14 +146,37 @@ def delete_employee(employee_id):
 @app.route(f'{config.BASE_BACKEND_ROUTE}/updateEmployee/id=<int:employee_id>', methods=['POST'])
 def update_employee(employee_id):
     try:
-        session = Session(bind=engine)
         employee = session.query(Employee).filter_by(id=employee_id).first()
         if not employee:
             return jsonify({'error': 'Employee not found'}), 404
 
+        # Capture the state of the employee before the update
+        original_state = {c.key: getattr(employee, c.key) for c in inspect(employee).mapper.column_attrs}
+
         update_data = request.get_json()
         for key, value in update_data.items():
             setattr(employee, to_snake_case(key), value)
+
+        # Capture the state of the employee after the update
+        updated_state = {c.key: getattr(employee, c.key) for c in inspect(employee).mapper.column_attrs}
+
+        # Identify and log the changes
+        old_val = []
+        new_val = []
+        for key, original_value in original_state.items():
+            updated_value = updated_state[key]
+            if original_value != updated_value:
+                old_val.append(f'{key}: {original_value}')
+                new_val.append(f'{key}: {updated_value}')
+
+        log_query_to_db(
+            session,
+            table_name='employee',
+            is_admin=True,
+            property_name='update_employee',
+            old_value=', '.join(old_val),
+            new_value=', '.join(new_val),
+        )
 
         session.commit()
         return jsonify(employee.id), 200
@@ -197,6 +250,51 @@ def get_first_entry_time_route(employee_id):
 
     except Exception as e:
         return jsonify({'error': str(e)}), 500
+
+
+@app.route(f'{config.BASE_BACKEND_ROUTE}/checkQRCode', methods=['POST'])
+def check_QR_code():
+    try:
+        data = request.get_json()
+        qrcode_string = data.get('qrcode_string')
+
+        if not all([qrcode_string]):
+            return jsonify({'error': 'Missing required parameters'}), 400
+
+        # Проверка наличия кода в таблице EntranceCode
+        entrance_code = session.query(EntranceCode).filter_by(code=qrcode_string).first()
+
+        if entrance_code:
+            return jsonify({'valid': True}), 200
+        else:
+            return jsonify({'valid': False}), 200
+
+    except Exception as e:
+        return jsonify({'error': str(e)}), 500
+
+
+def log_query_to_db(session, table_name, is_admin, property_name, old_value, new_value):
+    try:
+        # Создание объекта для логирования в базу данных
+        db_logger_entry = DbQueriesLogger(
+            table_name=table_name,
+            is_admin=is_admin,
+            property_name=property_name,
+            old_value=old_value,
+            new_value=new_value
+        )
+
+        # Добавление записи в сессию и коммит в базу данных
+        session.add(db_logger_entry)
+
+        # Логирование в файл
+        log_message = f"Table: {table_name}, Property: {property_name}, Old Value: {old_value}, New Value: {new_value}"
+        logger.info(log_message)
+
+    except Exception as e:
+        # Логирование ошибок
+        logger.error(f"Error logging to database: {str(e)}")
+
 
 
 if __name__ == '__main__':

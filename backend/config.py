@@ -1,6 +1,6 @@
 DB_ADAPTER = "postgresql+psycopg2"
 DB_USERNAME = "postgres"
-DB_USER_PASSWORD = "postgres"
+DB_USER_PASSWORD = "123321"
 DB_HOST = "localhost"
 DB_PORT = "5432"
 DB_NAME = "SecurityObserverDB"

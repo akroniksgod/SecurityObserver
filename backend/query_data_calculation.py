@@ -78,3 +78,4 @@ def get_first_entry_time(employee_id, target_date):
     except Exception as e:
         print(f"Error getting first entry time: {str(e)}")
         return None
+

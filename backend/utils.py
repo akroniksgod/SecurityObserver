@@ -1,5 +1,6 @@
 import re
 from re import sub
+# from backend.Models import DbQueriesLogger
 
 
 def to_snake_case(name):
@@ -14,3 +15,5 @@ def to_camel_case(s):
 
     # Join the string, ensuring the first letter is lowercase
     return ''.join([s[0].lower(), s[1:]])
+
+
