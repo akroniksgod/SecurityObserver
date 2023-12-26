@@ -47,7 +47,7 @@ def qrcode_validation(data):
 
 
 def send_request(input_string):
-    url = 'http://localhost'
+    url = 'http://localhost/api/securityObserver/checkQRCode'
     params = {'qrcode_string': input_string}
     response = requests.get(url, params=params)
 
