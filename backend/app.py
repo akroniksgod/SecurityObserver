@@ -6,7 +6,7 @@ from cv2.gapi.ie import params
 from flask import Flask, jsonify, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
 from psycopg2 import sql
-from sqlalchemy import create_engine
+from sqlalchemy import create_engine, inspect
 from sqlalchemy.orm import Session
 import config
 import query_data_calculation
@@ -102,7 +102,6 @@ def create_employee():
             phone_number=data.get('phoneNumber')
         )
         session.add(new_employee)
-        session.add(new_employee)
         log_query_to_db(
             session,
             table_name='employee',
@@ -128,6 +127,14 @@ def delete_employee(employee_id):
             return jsonify('Сотрудник не найден в базе данных'), 404
 
         session.delete(employee)
+        log_query_to_db(
+            session,
+            table_name='employee',
+            is_admin=True,
+            property_name='del_employee',
+            new_value='',
+            old_value=f'Surname: {employee.surname}, Name: {employee.name}, Position: {employee.position}'
+        )
         session.commit()
 
         return jsonify("ok"), 200
@@ -143,9 +150,33 @@ def update_employee(employee_id):
         if not employee:
             return jsonify({'error': 'Employee not found'}), 404
 
+        # Capture the state of the employee before the update
+        original_state = {c.key: getattr(employee, c.key) for c in inspect(employee).mapper.column_attrs}
+
         update_data = request.get_json()
         for key, value in update_data.items():
             setattr(employee, to_snake_case(key), value)
+
+        # Capture the state of the employee after the update
+        updated_state = {c.key: getattr(employee, c.key) for c in inspect(employee).mapper.column_attrs}
+
+        # Identify and log the changes
+        old_val = []
+        new_val = []
+        for key, original_value in original_state.items():
+            updated_value = updated_state[key]
+            if original_value != updated_value:
+                old_val.append(f'{key}: {original_value}')
+                new_val.append(f'{key}: {updated_value}')
+
+        log_query_to_db(
+            session,
+            table_name='employee',
+            is_admin=True,
+            property_name='update_employee',
+            old_value=', '.join(old_val),
+            new_value=', '.join(new_val),
+        )
 
         session.commit()
         return jsonify(employee.id), 200
