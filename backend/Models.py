@@ -8,12 +8,19 @@ from sqlalchemy.ext.declarative import declarative_base
 from datetime import datetime
 import config
 from sqlalchemy import inspect
-
+from sqlalchemy.orm import sessionmaker
 from utils import to_camel_case
+
+
+def create_session(engine):
+    Session = sessionmaker(bind=engine)
+    return Session()
+
+
 
 engine = create_engine(config.DB_CONNECTION_STR)
 Base = declarative_base()
-
+session = create_session(engine)
 
 
 class BaseEntity(Base):
@@ -113,4 +120,7 @@ class DbQueriesLogger(BaseEntity):
 
 
 def create_db():
+    engine = create_engine(config.DB_CONNECTION_STR)
     Base.metadata.create_all(engine)
+    session = create_session(engine)
+    session.close()

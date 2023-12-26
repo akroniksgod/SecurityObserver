@@ -1,23 +1,25 @@
 import os
 import threading
 from datetime import timedelta, datetime
+
+from cv2.gapi.ie import params
 from flask import Flask, jsonify, request, send_from_directory
 from flask_sqlalchemy import SQLAlchemy
-from gevent import event
+from psycopg2 import sql
 from sqlalchemy import create_engine
 from sqlalchemy.orm import Session
-import logging
 import config
 import query_data_calculation
 from sqlalchemy.orm import declarative_base
-from Models import Employee, create_db, DbQueriesLogger, EventCode, EntranceCode
+from Models import Employee, create_db, DbQueriesLogger, EventCode, EntranceCode, create_session
 from utils import to_snake_case
 from migrations import create_migrations
 from flask_cors import CORS
 from sqlalchemy import event
-
+import logging
 # Импорт приложения для сканирования qr кода
 #import camera_scanner
+
 
 logging.basicConfig()
 logging.getLogger('sqlalchemy.engine').setLevel(logging.INFO)
@@ -26,7 +28,19 @@ CORS(app)
 db_config = config.DB_CONNECTION_STR
 engine = create_engine(config.DB_CONNECTION_STR, echo=True)
 Base = declarative_base()
+session = create_session(engine)
 
+# Инициализация логгера
+logger = logging.getLogger('app_logger')
+logger.setLevel(logging.INFO)
+
+# Создание форматтера для логгера
+formatter = logging.Formatter('%(asctime)s - %(levelname)s - %(message)s')
+
+# Создание обработчика для записи в файл
+file_handler = logging.FileHandler('app_log.txt')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
 
 @app.route('/', defaults={'path': ''})
 @app.route('/<path:path>')
@@ -53,7 +67,6 @@ def welcome_route():
 
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployees', methods=['GET'])
 def get_employees():
-    session = Session(bind=engine)
     query = session.query(Employee).order_by(Employee.id.desc()).all()
     employees = []
     for employee in query:
@@ -65,7 +78,6 @@ def get_employees():
 @app.route(f'{config.BASE_BACKEND_ROUTE}/getEmployee/id=<int:id>', methods=['GET'])
 def get_employee(id):
     try:
-        session = Session(bind=engine)
         employee = session.query(Employee).filter_by(id=id).first()
         if not employee:
             return jsonify({'error': 'Employee not found'}), 404
@@ -79,7 +91,6 @@ def get_employee(id):
 @app.route(f'{config.BASE_BACKEND_ROUTE}/createEmployee', methods=['POST'])
 def create_employee():
     try:
-        session = Session(bind=engine)
         data: dict = request.get_json()
         new_employee = Employee(
             surname=data.get('surname'),
@@ -91,7 +102,17 @@ def create_employee():
             phone_number=data.get('phoneNumber')
         )
         session.add(new_employee)
+        session.add(new_employee)
+        log_query_to_db(
+            session,
+            table_name='employee',
+            is_admin=True,
+            property_name='new_employee',
+            old_value='',
+            new_value=f'Surname: {new_employee.surname}, Name: {new_employee.name}, Position: {new_employee.position}'
+        )
         session.commit()
+
         return jsonify(new_employee.id), 200
 
     except Exception as e:
@@ -101,7 +122,6 @@ def create_employee():
 @app.route(f'{config.BASE_BACKEND_ROUTE}/deleteEmployee/id=<int:employee_id>', methods=['GET'])
 def delete_employee(employee_id):
     try:
-        session = Session(bind=engine)
         employee = session.query(Employee).filter_by(id=employee_id).first()
 
         if not employee:
@@ -119,7 +139,6 @@ def delete_employee(employee_id):
 @app.route(f'{config.BASE_BACKEND_ROUTE}/updateEmployee/id=<int:employee_id>', methods=['POST'])
 def update_employee(employee_id):
     try:
-        session = Session(bind=engine)
         employee = session.query(Employee).filter_by(id=employee_id).first()
         if not employee:
             return jsonify({'error': 'Employee not found'}), 404
@@ -211,8 +230,6 @@ def check_QR_code(employee_id):
         if not all([employee_id, qrcode_string]):
             return jsonify({'error': 'Missing required parameters'}), 400
 
-        session = Session(bind=engine)
-
         # Проверка наличия кода в таблице EntranceCode
         entrance_code = session.query(EntranceCode).filter_by(employee_id=employee_id, code=qrcode_string).first()
 
@@ -225,32 +242,27 @@ def check_QR_code(employee_id):
         return jsonify({'error': str(e)}), 500
 
 
-# Функция для логирования запросов к базе данных
-def log_db_queries(sender, sql, params, context, executemany):
-    if context and "query" in context.info:
-        session = Session(bind=engine)
-        query_info = context.info["query"]
-
-        # Логирование в таблицу db_queries_logger
-        db_log_entry = DbQueriesLogger(
-            date=datetime.now(),
-            table_name=query_info["table"],
-            is_admin=query_info.get("is_admin", False),
-            property_name=query_info.get("property_name", ""),
-            old_value=query_info.get("old_value", ""),
-            new_value=query_info.get("new_value", "")
+def log_query_to_db(session, table_name, is_admin, property_name, old_value, new_value):
+    try:
+        # Создание объекта для логирования в базу данных
+        db_logger_entry = DbQueriesLogger(
+            table_name=table_name,
+            is_admin=is_admin,
+            property_name=property_name,
+            old_value=old_value,
+            new_value=new_value
         )
 
-        session.add(db_log_entry)
-        session.commit()
+        # Добавление записи в сессию и коммит в базу данных
+        session.add(db_logger_entry)
 
-        # Логирование в файл txt
-        with open("db_queries_log.txt", "a") as log_file:
-            log_file.write(f"{datetime.now()} - {sql} - {params}\n")
+        # Логирование в файл
+        log_message = f"Table: {table_name}, Property: {property_name}, Old Value: {old_value}, New Value: {new_value}"
+        logger.info(log_message)
 
-# Добавление обработчика событий для логирования запросов
-# event.listen(engine, "before_cursor_execute", log_db_queries)
-
+    except Exception as e:
+        # Логирование ошибок
+        logger.error(f"Error logging to database: {str(e)}")
 
 
 
