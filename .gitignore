@@ -3,7 +3,7 @@ __pycache__/
 *.py[cod]
 *$py.class
 
-frontend/.idea
+/frontend/.idea
 
 # C extensions
 *.so
